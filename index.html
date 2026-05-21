@@ -201,6 +201,24 @@ input::placeholder { color: var(--muted); }
 .biz-tab.active { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.1); color: var(--accent); }
 .biz-tab-icon { font-size: 0.9rem; }
 
+/* Company selection cards */
+.company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; animation: fadeUp 0.4s both; }
+.company-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; }
+.company-card:hover { border-color: rgba(59,130,246,0.4); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+.company-card-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.company-card-logo { width: 58px; height: 58px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; overflow: hidden; flex-shrink: 0; }
+.company-card-logo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.company-card-name { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+.company-card-industry { font-size: 0.72rem; color: var(--muted); }
+.company-card-reports { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 1rem; }
+.report-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 100px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); color: var(--accent); }
+.company-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+.company-card-cta { font-size: 0.78rem; font-weight: 600; color: var(--accent); }
+.company-card-arrow { font-size: 1rem; color: var(--muted); transition: transform 0.2s; }
+.company-card:hover .company-card-arrow { transform: translateX(4px); color: var(--accent); }
+.back-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted2); padding: 6px 14px; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-bottom: 1.25rem; }
+.back-btn:hover { color: var(--text); border-color: var(--border2); }
+
 .user-sections { animation: fadeUp 0.3s both; }
 .user-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
 .u-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
@@ -391,9 +409,8 @@ input::placeholder { color: var(--muted); }
   <div class="user-content">
     <div class="user-header">
       <div class="user-greeting">Welcome, <span id="user-greeting-name">User</span></div>
-      <div class="user-sub">Select a business below to view your authorized content.</div>
+      <div class="user-sub" id="user-sub-text">Select a business to view your reports.</div>
     </div>
-    <div id="user-biz-tabs" class="biz-tabs"></div>
     <div id="user-sections" class="user-sections"></div>
   </div>
 </div>
@@ -842,18 +859,25 @@ function renderContentList() {
 // ────────────────────────────
 // USER DASHBOARD
 // ────────────────────────────
+const BIZ_LOGOS = {
+  biz4: 'https://www.moodshine.com/wp-content/uploads/2025/05/MoodShine_Submark-1_Fuscia.png'
+};
+
 function renderUserDash() {
   const user = currentUser.data;
   document.getElementById('user-greeting-name').textContent = user.displayName;
   document.getElementById('user-name-top').textContent = user.displayName;
   document.getElementById('user-avatar-top').textContent = user.displayName.charAt(0);
+  document.getElementById('user-sub-text').textContent = 'Select a business to view your reports.';
+  renderCompanyCards();
+}
 
-  const grantedBizIds = Object.keys(user.permissions).filter(b => user.permissions[b].access);
-  const tabsEl = document.getElementById('user-biz-tabs');
+function renderCompanyCards() {
+  const user = currentUser.data;
   const sectionsEl = document.getElementById('user-sections');
+  const grantedBizIds = Object.keys(user.permissions).filter(b => user.permissions[b].access);
 
   if (grantedBizIds.length === 0) {
-    tabsEl.innerHTML = '';
     sectionsEl.innerHTML = `<div class="no-access">
       <div class="no-access-icon">🔒</div>
       <div class="no-access-title">No Access Yet</div>
@@ -862,39 +886,63 @@ function renderUserDash() {
     return;
   }
 
-  activeUserBiz = grantedBizIds[0];
-  tabsEl.innerHTML = grantedBizIds.map(bid => {
-    const biz = BUSINESSES.find(b => b.id === bid);
-    return `<button class="biz-tab ${bid === activeUserBiz ? 'active' : ''}" onclick="switchUserBiz('${bid}')" id="user-biz-tab-${bid}">
-      <span class="biz-tab-icon">${biz.icon}</span> ${biz.name}
-    </button>`;
-  }).join('');
+  sectionsEl.innerHTML = `<div class="company-grid">
+    ${grantedBizIds.map(bid => {
+      const biz = BUSINESSES.find(b => b.id === bid);
+      const perms = user.permissions[bid];
+      const reports = [];
+      if (perms.financials) reports.push('📊 Revenue Dashboard', '📈 Monthly Overview');
+      if (perms.docs) reports.push('📁 Documents');
+      const logo = BIZ_LOGOS[bid];
 
-  renderUserSections();
+      return `<div class="company-card" onclick="openBizReports('${bid}')">
+        <div class="company-card-top">
+          <div class="company-card-logo">
+            ${logo ? `<img src="${logo}" alt="${biz.name} logo" onerror="this.style.display='none';this.parentElement.textContent='${biz.icon}'">` : biz.icon}
+          </div>
+          <div>
+            <div class="company-card-name">${biz.name}</div>
+            <div class="company-card-industry">${biz.industry}</div>
+          </div>
+        </div>
+        <div class="company-card-reports">
+          ${reports.map(r => `<span class="report-tag">${r}</span>`).join('')}
+        </div>
+        <div class="company-card-footer">
+          <span class="company-card-cta">View Reports</span>
+          <span class="company-card-arrow">→</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
 }
 
-function switchUserBiz(bizId) {
+function openBizReports(bizId) {
   activeUserBiz = bizId;
-  document.querySelectorAll('.biz-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('user-biz-tab-' + bizId).classList.add('active');
-  renderUserSections();
+  const biz = BUSINESSES.find(b => b.id === bizId);
+  document.getElementById('user-sub-text').textContent = `${biz.icon} ${biz.name}`;
+  renderBizReports(bizId);
 }
 
-function renderUserSections() {
+function renderBizReports(bizId) {
   const user = currentUser.data;
-  const perms = user.permissions[activeUserBiz] || {};
-  const data = CONTENT[activeUserBiz];
+  const perms = user.permissions[bizId] || {};
+  const data = CONTENT[bizId];
   const sectionsEl = document.getElementById('user-sections');
   const hasDocs = perms.docs;
   const hasFin = perms.financials;
 
-  // Special dashboard for Mood Shine Cannabis
-  if (activeUserBiz === MOOD_SHINE_BIZ_ID && hasFin) {
+  // Add back button
+  const backBtn = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">← Back to Businesses</button>`;
+
+  if (bizId === MOOD_SHINE_BIZ_ID && hasFin) {
+    sectionsEl.innerHTML = backBtn;
+    sectionsEl.innerHTML += `<div id="mood-shine-dash"></div>`;
     renderMoodShineDashboard();
     return;
   }
 
-  sectionsEl.innerHTML = `<div class="user-grid">
+  sectionsEl.innerHTML = backBtn + `<div class="user-grid">
     ${hasDocs ? `
       <div class="u-card">
         <div class="u-card-title">📁 Documents <span class="count">${data.docs.length}</span></div>
@@ -1338,15 +1386,12 @@ async function loadMonthlyOverview() {
 }
 
 function renderMoodShineDashboard() {
-  const sectionsEl = document.getElementById('user-sections');
+  const container = document.getElementById('mood-shine-dash') || document.getElementById('user-sections');
   const defaultYear = '2026';
   const defaultMonths = SHEET_YEARS[defaultYear];
   const defaultMonth = defaultMonths[defaultMonths.length - 1];
 
-  sectionsEl.innerHTML = `
-    <div class="sheets-dashboard">
-      <div class="u-card" style="margin-bottom:1.25rem;">
-        <div class="u-card-title">🌿 Mood Shine Cannabis Dashboard</div>
+  container.innerHTML = `
 
         <!-- Tab buttons -->
         <div style="display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.25rem;">
