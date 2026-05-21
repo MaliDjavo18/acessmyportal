@@ -492,12 +492,14 @@ async function doLogin() {
 
   btn.textContent = 'Checking...';
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(u)}&select=*`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_password`, {
+      method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': 'Bearer ' + SUPABASE_KEY,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ input_username: u, input_password: p })
     });
     
     if (!response.ok) {
@@ -505,7 +507,7 @@ async function doLogin() {
     }
 
     const users = await response.json();
-    const user = users.find(x => x.password === p && x.role === 'user');
+    const user = users.length > 0 ? users[0] : null;
     
     if (user) {
       const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
