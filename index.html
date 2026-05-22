@@ -488,6 +488,64 @@ let activeContentBiz = 'biz1';
 let activeUserBiz = null;
 
 // ────────────────────────────
+// SECURITY — Login attempt limiting
+// ────────────────────────────
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MINUTES = 30;
+let loginAttempts = {};
+
+function isLockedOut(username) {
+  const data = loginAttempts[username];
+  if (!data) return false;
+  if (data.count >= MAX_ATTEMPTS) {
+    const elapsed = (Date.now() - data.lastAttempt) / 1000 / 60;
+    if (elapsed < LOCKOUT_MINUTES) return true;
+    delete loginAttempts[username]; // Reset after lockout period
+  }
+  return false;
+}
+
+function recordFailedAttempt(username) {
+  if (!loginAttempts[username]) loginAttempts[username] = { count: 0, lastAttempt: 0 };
+  loginAttempts[username].count++;
+  loginAttempts[username].lastAttempt = Date.now();
+}
+
+function resetAttempts(username) {
+  delete loginAttempts[username];
+}
+
+function getRemainingLockout(username) {
+  const data = loginAttempts[username];
+  if (!data) return 0;
+  const elapsed = (Date.now() - data.lastAttempt) / 1000 / 60;
+  return Math.ceil(LOCKOUT_MINUTES - elapsed);
+}
+
+// ────────────────────────────
+// SECURITY — Session timeout (30 minutes)
+// ────────────────────────────
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+let sessionTimer = null;
+let lastActivity = Date.now();
+
+function resetSessionTimer() {
+  lastActivity = Date.now();
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(() => {
+    if (currentUser) {
+      doLogout();
+      alert('You have been logged out due to inactivity.');
+    }
+  }, SESSION_TIMEOUT);
+}
+
+// Track user activity
+document.addEventListener('mousemove', resetSessionTimer);
+document.addEventListener('keypress', resetSessionTimer);
+document.addEventListener('click', resetSessionTimer);
+
+// ────────────────────────────
 // AUTH
 // ────────────────────────────
 async function doLogin() {
@@ -497,11 +555,21 @@ async function doLogin() {
   const btn = document.querySelector('.btn-primary');
   err.classList.remove('show');
 
+  // Check lockout
+  if (isLockedOut(u)) {
+    const mins = getRemainingLockout(u);
+    err.textContent = `Account locked. Try again in ${mins} minute${mins !== 1 ? 's' : ''}.`;
+    err.classList.add('show');
+    return;
+  }
+
   if (u === ADMIN.username && p === ADMIN.password) {
     currentUser = { role: 'admin' };
     btn.textContent = 'Loading...';
     await loadUsers();
     btn.textContent = 'Sign In →';
+    resetAttempts(u);
+    resetSessionTimer();
     showScreen('admin-screen');
     renderAdmin();
     return;
@@ -527,6 +595,8 @@ async function doLogin() {
     const user = users.length > 0 ? users[0] : null;
     
     if (user) {
+      resetAttempts(u);
+      resetSessionTimer();
       const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
         headers: {
           'apikey': SUPABASE_KEY,
@@ -544,6 +614,14 @@ async function doLogin() {
       showScreen('user-screen');
       renderUserDash();
     } else {
+      recordFailedAttempt(u);
+      const attempts = loginAttempts[u]?.count || 0;
+      const remaining = MAX_ATTEMPTS - attempts;
+      if (remaining <= 0) {
+        err.textContent = `Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.`;
+      } else {
+        err.textContent = `Incorrect username or password. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`;
+      }
       err.classList.add('show');
     }
   } catch(e) {
@@ -573,6 +651,7 @@ async function loadUsers() {
 function doLogout() {
   currentUser = null;
   USERS = [];
+  clearTimeout(sessionTimer);
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').classList.remove('show');
@@ -648,6 +727,13 @@ function renderUserTable() {
   }).join('');
 }
 
+function isStrongPassword(pwd) {
+  return pwd.length >= 8 &&
+    /[A-Z]/.test(pwd) &&
+    /[0-9]/.test(pwd) &&
+    /[^A-Za-z0-9]/.test(pwd);
+}
+
 async function addUser() {
   const u = document.getElementById('new-username').value.trim().toLowerCase();
   const p = document.getElementById('new-password').value;
@@ -657,6 +743,7 @@ async function addUser() {
   if (!u || !p || !d) { showError(err, 'Please fill in all fields.'); return; }
   if (u === ADMIN.username) { showError(err, 'That username is reserved.'); return; }
   if (USERS.find(x => x.username === u)) { showError(err, 'Username already exists.'); return; }
+  if (!isStrongPassword(p)) { showError(err, 'Password must be 8+ characters with uppercase, number and symbol.'); return; }
 
   try {
     const result = await sbFetch('users', {
