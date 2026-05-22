@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Goran's Business Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -259,12 +259,68 @@ input::placeholder { color: var(--muted); }
 .toast.green { color: var(--success); border-color: rgba(16,185,129,0.3); }
 .toast.red { color: var(--danger); border-color: rgba(239,68,68,0.3); }
 
-/* Responsive */
-@media (max-width: 700px) {
-  .add-form { grid-template-columns: 1fr; }
+/* ── RESPONSIVE / MOBILE ── */
+@media (max-width: 768px) {
+  /* Login */
+  .login-card { padding: 1.75rem 1.25rem; margin: 1rem; border-radius: 16px; }
+  .login-title { font-size: 1.6rem; }
+  input[type="text"], input[type="password"] { font-size: 1rem; padding: 0.85rem 1rem 0.85rem 2.75rem; }
+  .btn-primary { padding: 1rem; font-size: 1rem; }
+
+  /* Topbar */
+  .topbar { padding: 0 1rem; height: 54px; }
+  .topbar-logo { font-size: 0.95rem; }
+  .topbar-pill { display: none; }
+
+  /* Admin */
+  .admin-content { padding: 1rem; }
+  .add-form { grid-template-columns: 1fr; gap: 0.5rem; }
+  .tabs { flex-direction: column; gap: 4px; }
+  .tab { padding: 0.5rem; font-size: 0.8rem; }
+  .user-table { font-size: 0.78rem; }
+  .user-table th, .user-table td { padding: 0.6rem 0.5rem; }
+  .actions-row { flex-direction: column; gap: 4px; }
+  .btn-icon { font-size: 0.72rem; padding: 5px 8px; }
+  .biz-grid { grid-template-columns: 1fr 1fr; }
+  .modal { padding: 1.25rem; }
+  .perm-checks { flex-direction: column; gap: 0.5rem; }
+
+  /* User dashboard */
+  .user-content { padding: 1rem; }
+  .user-greeting { font-size: 1.2rem; }
+  .company-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .company-card { padding: 1.25rem; }
   .user-grid { grid-template-columns: 1fr; }
-  .topbar { padding: 0 1rem; }
-  .admin-content, .user-content { padding: 1.25rem; }
+
+  /* Charts & sheets */
+  .chart-wrap { height: 200px; }
+  .sheets-controls { flex-wrap: wrap; gap: 0.5rem; }
+  .sheets-select { font-size: 0.85rem; padding: 0.5rem 0.75rem; width: 100%; }
+  .sheets-table { font-size: 0.75rem; }
+  .sheets-table th, .sheets-table td { padding: 0.5rem 0.6rem; }
+  .summary-card { padding: 0.85rem; }
+  .summary-value { font-size: 1.1rem; }
+
+  /* Dash tabs */
+  .dash-tab-btn { font-size: 0.75rem; padding: 0.4rem; }
+
+  /* Toast */
+  .toast { bottom: 1rem; right: 1rem; left: 1rem; max-width: 100%; }
+
+  /* Back button */
+  .back-btn { margin-bottom: 1rem; }
+
+  /* Hide orbs on mobile for performance */
+  .orb { display: none; }
+}
+
+@media (max-width: 480px) {
+  .login-card { margin: 0.5rem; padding: 1.5rem 1rem; }
+  .login-title { font-size: 1.4rem; }
+  .company-card-name { font-size: 0.88rem; }
+  .topbar-logo { font-size: 0.85rem; }
+  .user-greeting { font-size: 1.1rem; }
+  .biz-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
