@@ -643,21 +643,24 @@ function generate2FACode() {
 
 async function send2FACode(email, code) {
   try {
+    const body = {
+      service_id: 'service_xdz63id',
+      template_id: 'template_xxwrijr',
+      user_id: 'unXnX6EE_UcdnhFd1',
+      template_params: {
+        to_email: email,
+        code: code,
+        portal_name: "Goran's Business Hub"
+      }
+    };
+    console.log('Sending 2FA to:', email, 'Body:', JSON.stringify(body));
     const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service_id: 'service_xdz63id',
-        template_id: 'template_xxwrijr',
-        user_id: 'unXnX6EE_UcdnhFd1',
-        template_params: {
-          to_email: email,
-          code: code,
-          portal_name: "Goran's Business Hub"
-        }
-      })
+      body: JSON.stringify(body)
     });
-    console.log('Email send status:', res.status);
+    const text = await res.text();
+    console.log('EmailJS response:', res.status, text);
     return res.ok;
   } catch(e) {
     console.error('Email error:', e);
