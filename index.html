@@ -643,29 +643,24 @@ function generate2FACode() {
 
 async function send2FACode(email, code) {
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + RESEND_API_KEY,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: email,
-        subject: "Goran's Business Hub — Verification Code",
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:2rem;background:#0f1520;color:#e8edf5;border-radius:16px;">
-            <h2 style="color:#3b82f6;margin-bottom:0.5rem;">Goran's Business Hub</h2>
-            <p style="color:#5a6a82;margin-bottom:1.5rem;">Your verification code</p>
-            <div style="background:#161e2e;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;">
-              <div style="font-size:2.5rem;font-weight:800;letter-spacing:0.4em;color:#fff;">${code}</div>
-            </div>
-            <p style="color:#5a6a82;font-size:0.85rem;">This code expires in 5 minutes. Do not share it with anyone.</p>
-          </div>`
+        service_id: 'service_xdz63id',
+        template_id: 'template_xxwrijr',
+        user_id: 'unXnX6EE_UcdnhFd1',
+        template_params: {
+          to_email: email,
+          code: code,
+          portal_name: "Goran's Business Hub"
+        }
       })
     });
+    console.log('Email send status:', res.status);
     return res.ok;
   } catch(e) {
+    console.error('Email error:', e);
     return false;
   }
 }
