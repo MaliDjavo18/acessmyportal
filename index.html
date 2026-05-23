@@ -806,27 +806,25 @@ async function doLogin() {
         perms.forEach(p => { permissions[p.business_id] = { access: true, docs: p.can_view_docs, financials: p.can_view_financials }; });
         pendingLoginUser = { ...user, displayName: user.display_name, permissions };
 
-        // Generate and send 2FA code
+        // Generate code first
         twoFACode = generate2FACode();
         twoFAExpiry = Date.now() + 5 * 60 * 1000;
-        const sent = await send2FACode(user.email, twoFACode);
-
+        
         btn.textContent = 'Sign In →';
 
-        if (sent) {
-          // Show 2FA step
-          document.getElementById('login-step1').style.display = 'none';
-          document.getElementById('login-step2').style.display = 'block';
-          startCountdown();
-          showToast('Verification code sent to your email!', 'green');
-        } else {
-          // Email failed — log in directly
-          resetAttempts(u);
-          resetSessionTimer();
-          currentUser = { role: 'user', data: pendingLoginUser };
-          showScreen('user-screen');
-          renderUserDash();
-        }
+        // Show 2FA screen immediately
+        document.getElementById('login-step1').style.display = 'none';
+        document.getElementById('login-step2').style.display = 'block';
+        startCountdown();
+
+        // Send email in background (don't wait for result)
+        send2FACode(user.email, twoFACode).then(sent => {
+          if (sent) {
+            showToast('Verification code sent to your email!', 'green');
+          } else {
+            showToast('Could not send email. Check your inbox or try again.', 'red');
+          }
+        });
       }
     } else {
       recordFailedAttempt(u);
