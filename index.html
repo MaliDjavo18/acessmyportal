@@ -6,6 +6,8 @@
 <title>Goran's Business Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.2/dist/otpauth.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 /* Google Sheets Dashboard */
 .sheets-dashboard { width: 100%; }
@@ -357,22 +359,39 @@ input::placeholder { color: var(--muted); }
       <button class="btn-primary" onclick="doLogin()">Sign In →</button>
     </div>
 
-    <!-- Step 2: 2FA Code -->
-    <div id="login-step2" style="display:none;">
-      <p class="login-subtitle">A 6-digit verification code has been sent to your email. Enter it below to continue.</p>
+    <!-- Step 3: TOTP Setup (first time only) -->
+    <div id="login-step3" style="display:none;">
+      <p class="login-subtitle">Set up your authenticator app to secure your account.</p>
+      <div style="text-align:center;margin-bottom:1rem;">
+        <div style="font-size:0.8rem;color:var(--muted2);margin-bottom:0.75rem;">1. Install <strong style="color:var(--text)">Google Authenticator</strong> or <strong style="color:var(--text)">Microsoft Authenticator</strong> on your phone</div>
+        <div style="font-size:0.8rem;color:var(--muted2);margin-bottom:1rem;">2. Scan this QR code with the app</div>
+        <canvas id="qr-canvas" style="border-radius:8px;background:white;padding:8px;"></canvas>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">Or enter this code manually:</div>
+        <div id="totp-manual-code" style="font-family:monospace;font-size:0.85rem;color:var(--accent);letter-spacing:0.15em;margin-top:0.25rem;"></div>
+      </div>
       <div class="input-group">
-        <label class="field-label">Verification Code</label>
+        <label class="field-label">Enter the 6-digit code from the app to confirm</label>
+        <div class="input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <input type="text" id="totp-setup-code" placeholder="Enter 6-digit code" maxlength="6" autocomplete="off" style="letter-spacing:0.3em;font-size:1.2rem;text-align:center;">
+        </div>
+        <p class="error-msg" id="totp-setup-error">Invalid code. Please try again.</p>
+      </div>
+      <button class="btn-primary" onclick="confirmTOTPSetup()">Activate & Sign In →</button>
+    </div>
+
+    <!-- Step 2: 2FA Code (TOTP) -->
+    <div id="login-step2" style="display:none;">
+      <p class="login-subtitle">Open your authenticator app and enter the 6-digit code for Goran's Business Hub.</p>
+      <div class="input-group">
+        <label class="field-label">Authenticator Code</label>
         <div class="input-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           <input type="text" id="twofa-code" placeholder="Enter 6-digit code" maxlength="6" autocomplete="off" style="letter-spacing:0.3em;font-size:1.2rem;text-align:center;">
         </div>
-        <p class="error-msg" id="twofa-error">Invalid or expired code. Please try again.</p>
+        <p class="error-msg" id="twofa-error">Invalid code. Please try again.</p>
       </div>
       <button class="btn-primary" onclick="verify2FA()">Verify Code →</button>
-      <p style="text-align:center;margin-top:1rem;font-size:0.78rem;color:var(--muted);">
-        Didn't receive it? <span style="color:var(--accent);cursor:pointer;" onclick="resend2FA()">Resend code</span>
-      </p>
-      <p style="text-align:center;margin-top:0.5rem;font-size:0.75rem;color:var(--muted);">Code expires in <span id="countdown">5:00</span></p>
       <button class="btn-sm" style="width:100%;margin-top:0.75rem;text-align:center;" onclick="backToLogin()">← Back to login</button>
     </div>
 
@@ -635,78 +654,106 @@ document.addEventListener('keypress', resetSessionTimer);
 document.addEventListener('click', resetSessionTimer);
 
 // ────────────────────────────
-// 2FA — Send and Verify
+// TOTP — Authenticator App 2FA
 // ────────────────────────────
-function generate2FACode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+let pendingTOTPSecret = null;
+
+function generateTOTPSecret() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let secret = '';
+  for (let i = 0; i < 32; i++) secret += chars[Math.floor(Math.random() * chars.length)];
+  return secret;
 }
 
-async function send2FACode(email, code) {
+function verifyTOTPCode(secret, code) {
   try {
-    const body = {
-      service_id: 'service_xdz63id',
-      template_id: 'template_dggo5qd',
-      user_id: 'unXnX6EE_UcdnhFd1',
-      template_params: {
-        to_email: email,
-        code: code,
-        portal_name: "Goran's Business Hub"
-      }
-    };
-    console.log('Sending 2FA to:', email, 'Body:', JSON.stringify(body));
-    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+    const totp = new OTPAuth.TOTP({
+      issuer: "Goran's Business Hub",
+      label: pendingLoginUser?.username || 'user',
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: OTPAuth.Secret.fromBase32(secret)
     });
-    const text = await res.text();
-    console.log('EmailJS response:', res.status, text);
-    return res.ok;
+    const delta = totp.validate({ token: code, window: 1 });
+    return delta !== null;
   } catch(e) {
-    console.error('Email error:', e);
+    console.error('TOTP error:', e);
     return false;
   }
 }
 
-function startCountdown() {
-  let seconds = 300; // 5 minutes
-  clearInterval(countdownTimer);
-  countdownTimer = setInterval(() => {
-    seconds--;
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    const el = document.getElementById('countdown');
-    if (el) el.textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
-    if (seconds <= 0) {
-      clearInterval(countdownTimer);
-      twoFACode = null;
-      const err = document.getElementById('twofa-error');
-      if (err) { err.textContent = 'Code expired. Please go back and try again.'; err.classList.add('show'); }
-    }
-  }, 1000);
+async function showTOTPSetup(user) {
+  pendingTOTPSecret = generateTOTPSecret();
+  const totp = new OTPAuth.TOTP({
+    issuer: "Goran's Business Hub",
+    label: user.username,
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    secret: OTPAuth.Secret.fromBase32(pendingTOTPSecret)
+  });
+  const uri = totp.toString();
+
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step3').style.display = 'block';
+  document.getElementById('totp-manual-code').textContent = pendingTOTPSecret;
+
+  // Generate QR code
+  setTimeout(() => {
+    QRCode.toCanvas(document.getElementById('qr-canvas'), uri, { width: 180, margin: 1 }, err => {
+      if (err) console.error('QR error:', err);
+    });
+  }, 100);
 }
 
-async function verify2FA() {
-  const entered = document.getElementById('twofa-code').value.trim();
-  const err = document.getElementById('twofa-error');
-  const btn = document.querySelectorAll('.btn-primary')[0];
+async function confirmTOTPSetup() {
+  const code = document.getElementById('totp-setup-code').value.trim();
+  const err = document.getElementById('totp-setup-error');
   err.classList.remove('show');
 
-  if (!twoFACode || Date.now() > twoFAExpiry) {
-    err.textContent = 'Code has expired. Please go back and try again.';
+  if (!verifyTOTPCode(pendingTOTPSecret, code)) {
     err.classList.add('show');
     return;
   }
 
-  if (entered !== twoFACode) {
+  // Save secret to database
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${pendingLoginUser.id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ totp_secret: pendingTOTPSecret, totp_enabled: true })
+    });
+
+    // Complete login
+    currentUser = { role: 'user', data: pendingLoginUser };
+    resetAttempts(pendingLoginUser.username);
+    resetSessionTimer();
+    showScreen('user-screen');
+    renderUserDash();
+  } catch(e) {
+    err.textContent = 'Error saving. Please try again.';
+    err.classList.add('show');
+  }
+}
+
+function verify2FA() {
+  const code = document.getElementById('twofa-code').value.trim();
+  const err = document.getElementById('twofa-error');
+  err.classList.remove('show');
+
+  if (!verifyTOTPCode(pendingLoginUser.totp_secret, code)) {
     err.textContent = 'Invalid code. Please try again.';
     err.classList.add('show');
     return;
   }
 
   // Code correct — complete login
-  clearInterval(countdownTimer);
-  twoFACode = null;
   currentUser = { role: 'user', data: pendingLoginUser };
   resetAttempts(pendingLoginUser.username);
   resetSessionTimer();
@@ -714,22 +761,12 @@ async function verify2FA() {
   renderUserDash();
 }
 
-async function resend2FA() {
-  if (!pendingLoginUser) return;
-  twoFACode = generate2FACode();
-  twoFAExpiry = Date.now() + 5 * 60 * 1000;
-  await send2FACode(pendingLoginUser.email, twoFACode);
-  startCountdown();
-  document.getElementById('twofa-code').value = '';
-  showToast('New code sent to your email!', 'green');
-}
-
 function backToLogin() {
-  clearInterval(countdownTimer);
-  twoFACode = null;
   pendingLoginUser = null;
+  pendingTOTPSecret = null;
   document.getElementById('login-step1').style.display = 'block';
   document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('login-step3').style.display = 'none';
   document.getElementById('twofa-code').value = '';
   document.getElementById('twofa-error').classList.remove('show');
 }
@@ -780,51 +817,25 @@ async function doLogin() {
     const user = users.length > 0 ? users[0] : null;
     
     if (user) {
-      if (!user.email) {
-        // No email on file — skip 2FA and log in directly
-        resetAttempts(u);
-        resetSessionTimer();
-        currentUser = { role: 'user', data: { ...user, displayName: user.display_name, permissions: {} } };
-        const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
-        });
-        const permsRaw = await permResponse.json();
-        const perms = Array.isArray(permsRaw) ? permsRaw : [];
-        const permissions = {};
-        perms.forEach(p => { permissions[p.business_id] = { access: true, docs: p.can_view_docs, financials: p.can_view_financials }; });
-        currentUser.data.permissions = permissions;
-        showScreen('user-screen');
-        renderUserDash();
+      // Load permissions
+      const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
+      });
+      const permsRaw = await permResponse.json();
+      const perms = Array.isArray(permsRaw) ? permsRaw : [];
+      const permissions = {};
+      perms.forEach(p => { permissions[p.business_id] = { access: true, docs: p.can_view_docs, financials: p.can_view_financials }; });
+      pendingLoginUser = { ...user, displayName: user.display_name, permissions };
+
+      btn.textContent = 'Sign In →';
+
+      if (!user.totp_enabled || !user.totp_secret) {
+        // First time — show TOTP setup
+        await showTOTPSetup(user);
       } else {
-        // Has email — send 2FA code
-        const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
-        });
-        const permsRaw = await permResponse.json();
-        const perms = Array.isArray(permsRaw) ? permsRaw : [];
-        const permissions = {};
-        perms.forEach(p => { permissions[p.business_id] = { access: true, docs: p.can_view_docs, financials: p.can_view_financials }; });
-        pendingLoginUser = { ...user, displayName: user.display_name, permissions };
-
-        // Generate code first
-        twoFACode = generate2FACode();
-        twoFAExpiry = Date.now() + 5 * 60 * 1000;
-        
-        btn.textContent = 'Sign In →';
-
-        // Show 2FA screen immediately
+        // Has TOTP — show verification screen
         document.getElementById('login-step1').style.display = 'none';
         document.getElementById('login-step2').style.display = 'block';
-        startCountdown();
-
-        // Send email in background (don't wait for result)
-        send2FACode(user.email, twoFACode).then(sent => {
-          if (sent) {
-            showToast('Verification code sent to your email!', 'green');
-          } else {
-            showToast('Could not send email. Check your inbox or try again.', 'red');
-          }
-        });
       }
     } else {
       recordFailedAttempt(u);
