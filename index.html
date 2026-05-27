@@ -398,6 +398,52 @@ input::placeholder { color: var(--muted); }
   </div>
 </div>
 
+<!-- ══════ INVITE SETUP SCREEN ══════ -->
+<div id="invite-screen" class="screen">
+  <div class="login-card" style="max-width:480px;">
+    <div class="portal-badge">Account Setup</div>
+    <h1 class="login-title">Welcome!</h1>
+    <p class="login-subtitle">You've been invited to <strong>Goran's Business Hub</strong>. Set up your account below.</p>
+    <div id="invite-form">
+      <div class="input-group">
+        <label class="field-label">Your Name</label>
+        <div class="input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <input type="text" id="invite-displayname" placeholder="Your full name" autocomplete="off">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="field-label">Choose a Username</label>
+        <div class="input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <input type="text" id="invite-username" placeholder="e.g. john" autocomplete="off">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="field-label">Create Password</label>
+        <div class="input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input type="password" id="invite-password" placeholder="Min 8 chars, uppercase, number, symbol">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="field-label">Confirm Password</label>
+        <div class="input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input type="password" id="invite-password2" placeholder="Confirm your password">
+        </div>
+        <p class="error-msg" id="invite-error"></p>
+      </div>
+      <button class="btn-primary" onclick="completeInvite()">Create Account →</button>
+    </div>
+    <div id="invite-invalid" style="display:none;text-align:center;padding:2rem 0;">
+      <div style="font-size:2rem;margin-bottom:1rem;">⚠️</div>
+      <div style="font-weight:600;margin-bottom:0.5rem;">Invalid or Expired Link</div>
+      <div style="color:var(--muted);font-size:0.85rem;">This invitation link has expired or already been used. Please contact your admin for a new invite.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════ ADMIN SCREEN ══════ -->
 <div id="admin-screen" class="screen">
   <nav class="topbar">
@@ -423,25 +469,17 @@ input::placeholder { color: var(--muted); }
     <!-- USERS TAB -->
     <div id="tab-users" class="tab-panel active">
       <div class="a-card">
-        <div class="a-card-title">➕ Add New User</div>
+        <div class="a-card-title">✉️ Invite New User</div>
         <div class="add-form">
-          <div class="input-group">
-            <label class="field-label">Username</label>
-            <input type="text" id="new-username" placeholder="e.g. john">
-          </div>
-          <div class="input-group">
-            <label class="field-label">Password</label>
-            <input type="password" id="new-password" placeholder="Set password">
-          </div>
           <div class="input-group">
             <label class="field-label">Display Name</label>
             <input type="text" id="new-displayname" placeholder="e.g. John Smith">
           </div>
           <div class="input-group">
-            <label class="field-label">Email (for 2FA)</label>
+            <label class="field-label">Email Address</label>
             <input type="text" id="new-email" placeholder="e.g. john@email.com">
           </div>
-          <button class="btn-add" onclick="addUser()">Add User</button>
+          <button class="btn-add" onclick="inviteUser()">Send Invite →</button>
         </div>
         <p class="error-msg" id="add-user-error" style="margin-top:0.5rem;"></p>
       </div>
@@ -903,6 +941,158 @@ document.addEventListener('keydown', e => {
     }
   }
 });
+
+// ────────────────────────────
+// INVITATION SYSTEM
+// ────────────────────────────
+const EMAILJS_INVITE_TEMPLATE = 'template_3g3e4kk';
+
+function generateInviteToken() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function inviteUser() {
+  const d = document.getElementById('new-displayname').value.trim();
+  const e = document.getElementById('new-email').value.trim().toLowerCase();
+  const err = document.getElementById('add-user-error');
+
+  if (!d || !e) { showError(err, 'Please fill in name and email.'); return; }
+  if (!e.includes('@')) { showError(err, 'Please enter a valid email address.'); return; }
+
+  try {
+    // Generate secure token
+    const token = generateInviteToken();
+    const inviteLink = `${window.location.origin}?invite=${token}`;
+
+    // Save invitation to database
+    await sbFetch('invitations', {
+      method: 'POST',
+      body: JSON.stringify({ email: e, display_name: d, token: token })
+    });
+
+    // Send invitation email
+    const emailRes = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: 'service_xdz63id',
+        template_id: EMAILJS_INVITE_TEMPLATE,
+        user_id: 'unXnX6EE_UcdnhFd1',
+        template_params: {
+          to_email: e,
+          display_name: d,
+          invite_link: inviteLink
+        }
+      })
+    });
+
+    document.getElementById('new-displayname').value = '';
+    document.getElementById('new-email').value = '';
+    err.classList.remove('show');
+
+    if (emailRes.ok) {
+      showToast('Invitation sent to ' + e + '!', 'green');
+    } else {
+      showToast('Invite saved but email failed. Share this link manually: ' + inviteLink, 'red');
+    }
+  } catch(e) {
+    showError(err, 'Error sending invitation. Please try again.');
+  }
+}
+
+async function checkInviteToken() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('invite');
+  if (!token) return;
+
+  // Show invite screen
+  showScreen('invite-screen');
+
+  try {
+    const invites = await sbFetch(`invitations?token=eq.${token}&used=eq.false&select=*`);
+    if (invites.length === 0) {
+      document.getElementById('invite-form').style.display = 'none';
+      document.getElementById('invite-invalid').style.display = 'block';
+      return;
+    }
+
+    const invite = invites[0];
+    // Check if expired
+    if (new Date(invite.expires_at) < new Date()) {
+      document.getElementById('invite-form').style.display = 'none';
+      document.getElementById('invite-invalid').style.display = 'block';
+      return;
+    }
+
+    // Pre-fill display name
+    document.getElementById('invite-displayname').value = invite.display_name;
+    window.currentInvite = invite;
+  } catch(e) {
+    document.getElementById('invite-form').style.display = 'none';
+    document.getElementById('invite-invalid').style.display = 'block';
+  }
+}
+
+async function completeInvite() {
+  const displayName = document.getElementById('invite-displayname').value.trim();
+  const username = document.getElementById('invite-username').value.trim().toLowerCase();
+  const password = document.getElementById('invite-password').value;
+  const password2 = document.getElementById('invite-password2').value;
+  const err = document.getElementById('invite-error');
+  err.classList.remove('show');
+
+  if (!displayName || !username || !password || !password2) { 
+    err.textContent = 'Please fill in all fields.'; 
+    err.classList.add('show'); 
+    return; 
+  }
+  if (password !== password2) { 
+    err.textContent = 'Passwords do not match.'; 
+    err.classList.add('show'); 
+    return; 
+  }
+  if (!isStrongPassword(password)) { 
+    err.textContent = 'Password must be 8+ characters with uppercase, number and symbol.'; 
+    err.classList.add('show'); 
+    return; 
+  }
+
+  try {
+    // Create user account
+    const result = await sbFetch('users', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        username: username, 
+        password: password, 
+        display_name: displayName, 
+        role: 'user', 
+        email: window.currentInvite.email 
+      })
+    });
+
+    // Mark invitation as used
+    await sbFetch(`invitations?id=eq.${window.currentInvite.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ used: true }),
+      prefer: 'return=minimal'
+    });
+
+    // Remove invite token from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Show success and redirect to login
+    showScreen('login-screen');
+    showToast('Account created! You can now log in.', 'green');
+  } catch(e) {
+    err.textContent = 'Error creating account. Username may already exist.';
+    err.classList.add('show');
+  }
+}
+
+// Check for invite token on page load
+checkInviteToken();
 
 // ────────────────────────────
 // SCREEN SWITCHING
