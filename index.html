@@ -699,12 +699,32 @@ async function showTOTPSetup(user) {
   document.getElementById('login-step3').style.display = 'block';
   document.getElementById('totp-manual-code').textContent = pendingTOTPSecret;
 
-  // Generate QR code
-  setTimeout(() => {
-    QRCode.toCanvas(document.getElementById('qr-canvas'), uri, { width: 180, margin: 1 }, err => {
+  // Generate QR code with multiple attempts
+  let attempts = 0;
+  const tryQR = () => {
+    attempts++;
+    const canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    if (typeof QRCode === 'undefined') {
+      if (attempts < 10) setTimeout(tryQR, 300);
+      else {
+        // Show manual code only if QR fails
+        canvas.style.display = 'none';
+        document.getElementById('totp-manual-code').style.fontSize = '1rem';
+        document.getElementById('totp-manual-code').style.color = 'var(--success)';
+      }
+      return;
+    }
+    QRCode.toCanvas(canvas, uri, { 
+      width: 200, 
+      margin: 2,
+      color: { dark: '#000000', light: '#ffffff' }
+    }, err => {
       if (err) console.error('QR error:', err);
+      else console.log('QR generated successfully');
     });
-  }, 100);
+  };
+  setTimeout(tryQR, 500);
 }
 
 async function confirmTOTPSetup() {
