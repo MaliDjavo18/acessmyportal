@@ -1060,15 +1060,14 @@ async function completeInvite() {
   }
 
   try {
-    // Create user account
-    const result = await sbFetch('users', {
+    // Create user account with encrypted password
+    const result = await sbFetch('rpc/create_invited_user', {
       method: 'POST',
       body: JSON.stringify({ 
-        username: username, 
-        password: password, 
-        display_name: displayName, 
-        role: 'user', 
-        email: window.currentInvite.email 
+        p_username: username, 
+        p_password: password, 
+        p_display_name: displayName, 
+        p_email: window.currentInvite.email 
       })
     });
 
