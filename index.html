@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.2/dist/otpauth.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 /* Google Sheets Dashboard */
 .sheets-dashboard { width: 100%; }
@@ -365,7 +365,7 @@ input::placeholder { color: var(--muted); }
       <div style="text-align:center;margin-bottom:1rem;">
         <div style="font-size:0.8rem;color:var(--muted2);margin-bottom:0.75rem;">1. Install <strong style="color:var(--text)">Google Authenticator</strong> or <strong style="color:var(--text)">Microsoft Authenticator</strong> on your phone</div>
         <div style="font-size:0.8rem;color:var(--muted2);margin-bottom:1rem;">2. Scan this QR code with the app</div>
-        <canvas id="qr-canvas" style="border-radius:8px;background:white;padding:8px;"></canvas>
+        <div id="qr-canvas" style="border-radius:8px;background:white;padding:8px;display:inline-block;"></div>
         <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">Or enter this code manually:</div>
         <div id="totp-manual-code" style="font-family:monospace;font-size:0.85rem;color:var(--accent);letter-spacing:0.15em;margin-top:0.25rem;"></div>
       </div>
@@ -699,32 +699,23 @@ async function showTOTPSetup(user) {
   document.getElementById('login-step3').style.display = 'block';
   document.getElementById('totp-manual-code').textContent = pendingTOTPSecret;
 
-  // Generate QR code with multiple attempts
-  let attempts = 0;
-  const tryQR = () => {
-    attempts++;
-    const canvas = document.getElementById('qr-canvas');
-    if (!canvas) return;
-    if (typeof QRCode === 'undefined') {
-      if (attempts < 10) setTimeout(tryQR, 300);
-      else {
-        // Show manual code only if QR fails
-        canvas.style.display = 'none';
-        document.getElementById('totp-manual-code').style.fontSize = '1rem';
-        document.getElementById('totp-manual-code').style.color = 'var(--success)';
-      }
-      return;
+  // Generate QR code using qrcodejs
+  setTimeout(() => {
+    try {
+      const container = document.getElementById('qr-canvas');
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: uri,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) {
+      console.error('QR error:', e);
     }
-    QRCode.toCanvas(canvas, uri, { 
-      width: 200, 
-      margin: 2,
-      color: { dark: '#000000', light: '#ffffff' }
-    }, err => {
-      if (err) console.error('QR error:', err);
-      else console.log('QR generated successfully');
-    });
-  };
-  setTimeout(tryQR, 500);
+  }, 500);
 }
 
 async function confirmTOTPSetup() {
