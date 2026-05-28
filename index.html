@@ -1192,9 +1192,9 @@ function switchTab(name) {
     t.classList.toggle('active', names[i] === name);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
+  const panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
   if (name === 'documents') {
-    // Populate business select
     const sel = document.getElementById('upload-biz-select');
     if (sel && sel.options.length === 0) {
       BUSINESSES.forEach(b => {
