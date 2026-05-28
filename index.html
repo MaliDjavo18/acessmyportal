@@ -547,6 +547,34 @@ input::placeholder { color: var(--muted); }
         <div id="content-list"></div>
       </div>
     </div>
+
+    <!-- DOCUMENTS TAB -->
+    <div id="tab-documents" class="tab-panel">
+      <div class="a-card">
+        <div class="a-card-title">📄 Upload Documents</div>
+        <div style="margin-bottom:1rem;">
+          <label class="field-label">Select Business</label>
+          <select class="sheets-select" id="upload-biz-select" style="width:100%;margin-bottom:0.75rem;"></select>
+          <label class="field-label">Document Name</label>
+          <input type="text" id="upload-doc-name" placeholder="e.g. Employee Handbook 2025" style="width:100%;margin-bottom:0.75rem;">
+          <label class="field-label">Description (optional)</label>
+          <input type="text" id="upload-doc-desc" placeholder="Brief description" style="width:100%;margin-bottom:0.75rem;">
+        </div>
+        <div class="upload-area" onclick="document.getElementById('doc-file-input').click()">
+          <div class="upload-area-icon">📁</div>
+          <div class="upload-area-text">
+            <strong>Click to upload</strong> or drag and drop<br>
+            PDF, Excel, Word files supported
+          </div>
+        </div>
+        <div id="upload-progress" style="display:none;text-align:center;color:var(--muted);font-size:0.85rem;padding:1rem;">
+          Uploading... please wait
+        </div>
+      </div>
+      <div class="a-card">
+        <div class="a-card-title">📋 All Documents <span style="font-size:0.75rem;font-weight:400;color:var(--muted);" id="docs-count"></span></div>
+        <div class="biz-filter-row" id="docs-biz-filter"></div>
+        <div id="admin-docs-list"></div>
       </div>
     </div>
 
