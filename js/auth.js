@@ -29,6 +29,7 @@ function getRemainingLockout(username) {
 }
 
 const SESSION_TIMEOUT = 30 * 60 * 1000;
+let sessionTimer = null;
 
 function resetSessionTimer() {
   clearTimeout(sessionTimer);
