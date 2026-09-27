@@ -2,7 +2,7 @@
 // SUPABASE CONFIG
 // ────────────────────────────
 const SUPABASE_URL = 'https://dyrummnwdoiiwdsdeekj.supabase.co';
-const SUPABASE_KEY = 'paste-the-eyJ-key-you-just-copied';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5cnVtbW53ZG9paXdkc2RlZWtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NDUxMjcsImV4cCI6MjEwNjEyMTEyN30.7hYwwLzwGg5q8A49F9d-7BpWKg6YaNqlckHwEkTC9QE';
 
 async function sbFetch(path, options = {}) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
