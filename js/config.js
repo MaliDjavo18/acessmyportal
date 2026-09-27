@@ -2,7 +2,7 @@
 // SUPABASE CONFIG
 // ────────────────────────────
 const SUPABASE_URL = 'https://dyrummnwdoiiwdsdeekj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_g9-97EavgmjUlsvDAoqevA_EDRHbEZ0';
+const SUPABASE_KEY = 'paste-the-eyJ-key-you-just-copied';
 
 async function sbFetch(path, options = {}) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
