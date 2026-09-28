@@ -80,6 +80,7 @@ function renderUserTable() {
       </td>
     </tr>`;
   }).join('');
+  container.innerHTML = bizRows;
 }
 
 function isStrongPassword(pwd) {
