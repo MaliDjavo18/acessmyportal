@@ -203,6 +203,47 @@
         <div id="admin-docs-list"></div>
       </div>
     </div>
+    <!-- MAMIC FAMILY TAB -->
+    <div id="tab-personal" class="tab-panel">
+      <div class="a-card">
+        <div class="a-card-title">🏡 Mamic Family</div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem;">Share personal content with your family — notes, documents, contacts, and links.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">📝 Family Notes</div>
+            <textarea id="personal-notes" placeholder="Write a note for your family..." style="width:100%;min-height:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;color:var(--text);font-size:0.83rem;font-family:'DM Sans',sans-serif;resize:vertical;box-sizing:border-box;"></textarea>
+            <button class="btn-add" style="margin-top:0.6rem;width:100%;padding:0.5rem;" onclick="savePersonalNote()">Save Note</button>
+            <div id="personal-notes-list" style="margin-top:0.75rem;"></div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">🔗 Important Links</div>
+            <input type="text" id="personal-link-label" placeholder="Label (e.g. School Portal)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <input type="text" id="personal-link-url" placeholder="https://..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" onclick="savePersonalLink()">Add Link</button>
+            <div id="personal-links-list" style="margin-top:0.75rem;"></div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">📂 Family Documents</div>
+            <input type="text" id="personal-doc-name" placeholder="Document name" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <div class="upload-area" style="padding:0.75rem;" onclick="document.getElementById('personal-file-input').click()">
+              <div style="font-size:0.82rem;color:var(--muted);"><strong style="color:var(--text);">Click to upload</strong> · PDF, Word, Excel</div>
+            </div>
+            <input type="file" id="personal-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" onchange="handlePersonalUpload(event)">
+            <div id="personal-upload-progress" style="display:none;font-size:0.82rem;color:var(--muted);padding:0.5rem 0;">Uploading...</div>
+            <div id="personal-docs-list" style="margin-top:0.75rem;"></div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">📞 Family Contacts</div>
+            <input type="text" id="personal-contact-name" placeholder="Name" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <input type="text" id="personal-contact-phone" placeholder="Phone" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <input type="text" id="personal-contact-note" placeholder="Note (e.g. Doctor, Insurance)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
+            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" onclick="savePersonalContact()">Add Contact</button>
+            <div id="personal-contacts-list" style="margin-top:0.75rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
