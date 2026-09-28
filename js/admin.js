@@ -1,15 +1,15 @@
-// ────────────────────────────
+// ââââââââââââââââââââââââââââ
 // SCREEN SWITCHING
-// ────────────────────────────
+// ââââââââââââââââââââââââââââ
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
 
-// ────────────────────────────
+// ââââââââââââââââââââââââââââ
 // ADMIN RENDER
-// ────────────────────────────
+// ââââââââââââââââââââââââââââ
 function renderAdmin() {
   renderUserTable();
   renderBizGrid();
@@ -67,9 +67,9 @@ function renderUserTable() {
       <td>${grantedBizIds.length > 0 ? bizBadges : '<span style="color:var(--muted);font-size:0.8rem;">No access granted</span>'}</td>
       <td>
         <div class="actions-row">
-          <button class="btn-icon" onclick="openPermModal(${idx})">🔑 Permissions</button>
-          <button class="btn-icon" onclick="previewAsUser(${idx})">👁 Preview</button>
-          <button class="btn-icon danger" onclick="deleteUser(${idx})">🗑 Remove</button>
+          <button class="btn-icon" onclick="openPermModal(${idx})">ð Permissions</button>
+          <button class="btn-icon" onclick="previewAsUser(${idx})">ð Preview</button>
+          <button class="btn-icon danger" onclick="deleteUser(${idx})">ð Remove</button>
         </div>
       </td>
     </tr>`;
@@ -271,10 +271,10 @@ function renderContentList() {
   const container = document.getElementById('content-list');
   container.innerHTML = `
     <div class="content-section">
-      <div class="content-section-title">📁 Documents</div>
+      <div class="content-section-title">ð Documents</div>
       ${data.docs.map(d => `
         <div class="content-item">
-          <div class="content-item-icon">📄</div>
+          <div class="content-item-icon">ð</div>
           <div class="content-item-info">
             <div class="content-item-name">${d}</div>
             <div class="content-item-meta">Visible to users with Documents access in ${biz.name}</div>
@@ -282,10 +282,10 @@ function renderContentList() {
         </div>`).join('')}
     </div>
     <div class="content-section">
-      <div class="content-section-title">💰 Financial Info</div>
+      <div class="content-section-title">ð° Financial Info</div>
       ${data.financials.map(f => `
         <div class="content-item">
-          <div class="content-item-icon">📊</div>
+          <div class="content-item-icon">ð</div>
           <div class="content-item-info">
             <div class="content-item-name">${f.label}: <strong style="color:${f.up ? 'var(--success)' : 'var(--text)'}">${f.value}</strong></div>
             <div class="content-item-meta">Visible to users with Financial Info access in ${biz.name}</div>
@@ -305,7 +305,7 @@ function previewAsUser(idx) {
     const bar = document.createElement('div');
     bar.id = 'admin-preview-bar';
     bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#000;text-align:center;padding:0.5rem 1rem;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:1rem;';
-    bar.innerHTML = `👁 Admin Preview — viewing as <strong>${user.displayName}</strong> &nbsp;<button onclick="exitPreview()" style="background:#000;color:#fff;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;">← Back to Admin</button>`;
+    bar.innerHTML = `ð Admin Preview â viewing as <strong>${user.displayName}</strong> &nbsp;<button onclick="exitPreview()" style="background:#000;color:#fff;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;">â Back to Admin</button>`;
     document.body.prepend(bar);
   }, 100);
 }
@@ -318,4 +318,4 @@ function exitPreview() {
   renderAdmin();
 }
 
-// ────────────────────────────
+// ââââââââââââââââââââââââââââ
