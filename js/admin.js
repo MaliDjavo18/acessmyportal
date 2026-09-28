@@ -179,6 +179,7 @@ function renderPermBizList() {
       </div>
     </div>`;
   }).join('');
+  container.innerHTML = bizRows;
 }
 
 function onAccessToggle(bizId) {
