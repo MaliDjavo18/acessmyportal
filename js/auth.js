@@ -425,7 +425,9 @@ async function checkInviteToken() {
     document.getElementById('invite-invalid').style.display = 'block';
   }
 }
-
+function isStrongPassword(p) {
+  return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p);
+}
 async function completeInvite() {
   const displayName = document.getElementById('invite-displayname').value.trim();
   const username = document.getElementById('invite-username').value.trim().toLowerCase();
