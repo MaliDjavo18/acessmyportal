@@ -482,4 +482,4 @@ async function completeInvite() {
 }
 
 // Check for invite token on page load
-checkInviteToken();
+window.addEventListener('DOMContentLoaded', checkInviteToken);
