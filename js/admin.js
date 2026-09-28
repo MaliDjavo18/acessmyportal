@@ -318,4 +318,25 @@ function exitPreview() {
   renderAdmin();
 }
 
+function viewAsAdmin() {
+  const fullPerms = {};
+  BUSINESSES.forEach(b => { fullPerms[b.id] = { access: true, docs: true, financials: true }; });
+  currentUser = {
+    role: 'admin',
+    isAdminView: true,
+    data: { displayName: 'Admin', username: 'admin', permissions: fullPerms }
+  };
+  showScreen('user-screen');
+  renderUserDash();
+  setTimeout(() => {
+    const existing = document.getElementById('admin-preview-bar');
+    if (existing) existing.remove();
+    const bar = document.createElement('div');
+    bar.id = 'admin-preview-bar';
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#6366f1;color:#fff;text-align:center;padding:0.5rem 1rem;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:1rem;';
+    bar.innerHTML = '<span>Admin View — Full Access</span><button onclick="exitPreview()" style="background:#fff;color:#6366f1;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;">Back to Admin</button>';
+    document.body.prepend(bar);
+  }, 100);
+}
+
 // ââââââââââââââââââââââââââââ
