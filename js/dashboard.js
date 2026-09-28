@@ -60,7 +60,7 @@ function parseSheetTable(table) {
 }
 
 function formatCurrency(val) {
-  if (!val && val !== 0) return 'â';
+  if (!val && val !== 0) return '';
   const num = parseFloat(String(val).replace(/[$,]/g, ''));
   if (isNaN(num)) return val;
   return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -127,15 +127,15 @@ async function loadSheetMonth(sheetName) {
   const projEl = document.getElementById('sheets-projection');
   if (projEl) {
     projEl.innerHTML = (projection.netSales || projection.salesCT) ? `
-      <div style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;color:var(--warning);">ð Month-End Projection</div>
+      <div style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;color:var(--warning);"> Month-End Projection</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
         <div class="summary-card" style="border-color:rgba(245,158,11,0.3);">
           <div class="summary-label">Projected Net Sales</div>
-          <div class="summary-value" style="color:var(--warning)">${projection.netSales ? formatCurrency(projection.netSales) : 'â'}</div>
+          <div class="summary-value" style="color:var(--warning)">${projection.netSales ? formatCurrency(projection.netSales) : ''}</div>
         </div>
         <div class="summary-card" style="border-color:rgba(245,158,11,0.3);">
           <div class="summary-label">Projected Customer Count</div>
-          <div class="summary-value" style="color:var(--warning)">${projection.salesCT ? Math.round(projection.salesCT).toLocaleString() : 'â'}</div>
+          <div class="summary-value" style="color:var(--warning)">${projection.salesCT ? Math.round(projection.salesCT).toLocaleString() : ''}</div>
         </div>
       </div>` : '';
   }
@@ -146,7 +146,7 @@ async function loadSheetMonth(sheetName) {
   const bestDayEl = document.getElementById('best-day-label');
   if (bestDayEl && dayAverages.length > 0) {
     const best = dayAverages.reduce((a, b) => a.avg > b.avg ? a : b);
-    bestDayEl.textContent = `ð Best day: ${best.day} (avg ${formatCurrency(best.avg)})`;
+    bestDayEl.textContent = ` Best day: ${best.day} (avg ${formatCurrency(best.avg)})`;
   }
 
   const tableEl = document.getElementById('sheets-table-body');
@@ -245,12 +245,12 @@ async function loadMonthlyOverview() {
       const profitPct = String(r[5] || '').trim();
       const expenses = parseFloat(String(r[6] || '').replace(/[$,]/g, ''));
       return `<tr style="${rowStyle}">
-        <td style="${isProj ? 'color:var(--warning);font-weight:600;' : ''}">${r[0]}${isProj ? ' ð®' : ''}</td>
-        <td>${!isNaN(sales) ? formatCurrency(sales) : 'â'}</td>
-        <td>${!isNaN(customers) ? Math.round(customers).toLocaleString() : 'â'}</td>
-        <td>${!isNaN(dailyAvg) ? formatCurrency(dailyAvg) : 'â'}</td>
-        <td>${profitPct || 'â'}</td>
-        <td>${!isNaN(expenses) ? formatCurrency(expenses) : 'â'}</td>
+        <td style="${isProj ? 'color:var(--warning);font-weight:600;' : ''}">${r[0]}${isProj ? ' ' : ''}</td>
+        <td>${!isNaN(sales) ? formatCurrency(sales) : ''}</td>
+        <td>${!isNaN(customers) ? Math.round(customers).toLocaleString() : ''}</td>
+        <td>${!isNaN(dailyAvg) ? formatCurrency(dailyAvg) : ''}</td>
+        <td>${profitPct || ''}</td>
+        <td>${!isNaN(expenses) ? formatCurrency(expenses) : ''}</td>
       </tr>`;
     }).join('');
   }
@@ -264,8 +264,8 @@ function renderMoodShineDashboard() {
 
   container.innerHTML = `
     <div style="display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.25rem;">
-      <button class="dash-tab-btn active" id="dash-tab-daily" onclick="switchDashTab('daily')" style="flex:1;padding:0.5rem;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">ð Daily Revenue</button>
-      <button class="dash-tab-btn" id="dash-tab-monthly" onclick="switchDashTab('monthly')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;">ð Monthly Overview</button>
+      <button class="dash-tab-btn active" id="dash-tab-daily" onclick="switchDashTab('daily')" style="flex:1;padding:0.5rem;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;"> Daily Revenue</button>
+      <button class="dash-tab-btn" id="dash-tab-monthly" onclick="switchDashTab('monthly')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;"> Monthly Overview</button>
     </div>
     <div id="daily-panel">
       <div class="sheets-controls">
@@ -281,7 +281,7 @@ function renderMoodShineDashboard() {
         <div class="sheets-summary" id="sheets-summary"></div>
         <div id="sheets-projection" style="margin-bottom:1.25rem;"></div>
         <div class="chart-wrap"><canvas id="revenue-chart"></canvas></div>
-        <div style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin:1.25rem 0 0.5rem;color:var(--muted2);">ð Best Day of Week <span id="best-day-label" style="font-weight:400;color:var(--warning);font-size:0.78rem;margin-left:8px;"></span></div>
+        <div style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin:1.25rem 0 0.5rem;color:var(--muted2);"> Best Day of Week <span id="best-day-label" style="font-weight:400;color:var(--warning);font-size:0.78rem;margin-left:8px;"></span></div>
         <div class="chart-wrap" style="height:220px;margin-bottom:1.25rem;"><canvas id="day-chart"></canvas></div>
         <div class="sheets-table-wrap">
           <table class="sheets-table">
