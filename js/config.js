@@ -1,6 +1,6 @@
-// ────────────────────────────
+// 
 // SUPABASE CONFIG
-// ────────────────────────────
+// 
 const SUPABASE_URL = 'https://dyrummnwdoiiwdsdeekj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5cnVtbW53ZG9paXdkc2RlZWtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NDUxMjcsImV4cCI6MjEwNjEyMTEyN30.7hYwwLzwGg5q8A49F9d-7BpWKg6YaNqlckHwEkTC9QE';
 
@@ -23,37 +23,37 @@ async function sbFetch(path, options = {}) {
   return text ? JSON.parse(text) : [];
 }
 
-// ────────────────────────────
+// 
 // DATA STORE
-// ────────────────────────────
+// 
 const BUSINESSES = [
-  { id:'biz1', name:'Delta Group Logistics Inc',  icon:'🚚', industry:'Logistics'        },
-  { id:'biz2', name:'Delta Freight Systems LLC',  icon:'📦', industry:'Freight'           },
-  { id:'biz3', name:'DFS Equipment Leasing LLC',  icon:'🏗️', industry:'Equipment Leasing' },
-  { id:'biz4', name:'Mood Shine Cannabis',         icon:'🌿', industry:'Cannabis'          },
-  { id:'biz5', name:'Paychex Solutions',           icon:'💼', industry:'Payroll & HR'      },
+  { id:'biz1', name:'Delta Group Logistics Inc',  icon:'', industry:'Logistics'        },
+  { id:'biz2', name:'Delta Freight Systems LLC',  icon:'', industry:'Freight'           },
+  { id:'biz3', name:'DFS Equipment Leasing LLC',  icon:'', industry:'Equipment Leasing' },
+  { id:'biz4', name:'Mood Shine Cannabis',         icon:'', industry:'Cannabis'          },
+  { id:'biz5', name:'Paychex Solutions',           icon:'', industry:'Payroll & HR'      },
 ];
 
 const CONTENT = {
   biz1: {
     docs: ['Logistics Operations Manual','Client Service Agreements','Fleet Management Report','Insurance & Compliance Docs'],
-    financials: [{ label:'Revenue Q2', value:'—', up:true },{ label:'Operating Costs', value:'—', up:false },{ label:'Net Profit', value:'—', up:true },{ label:'Fleet Utilization', value:'—', up:true }]
+    financials: [{ label:'Revenue Q2', value:'', up:true },{ label:'Operating Costs', value:'', up:false },{ label:'Net Profit', value:'', up:true },{ label:'Fleet Utilization', value:'', up:true }]
   },
   biz2: {
     docs: ['Freight Rate Schedule','Carrier Agreements','Shipment Reports Q2','DOT Compliance Files'],
-    financials: [{ label:'Freight Revenue', value:'—', up:true },{ label:'Carrier Costs', value:'—', up:false },{ label:'Net Profit', value:'—', up:true },{ label:'Load Growth', value:'—', up:true }]
+    financials: [{ label:'Freight Revenue', value:'', up:true },{ label:'Carrier Costs', value:'', up:false },{ label:'Net Profit', value:'', up:true },{ label:'Load Growth', value:'', up:true }]
   },
   biz3: {
     docs: ['Equipment Lease Agreements','Asset Register 2025','Maintenance Schedules','Client Contracts'],
-    financials: [{ label:'Lease Revenue', value:'—', up:true },{ label:'Maintenance Costs', value:'—', up:false },{ label:'Net Profit', value:'—', up:true },{ label:'Fleet Value', value:'—', up:true }]
+    financials: [{ label:'Lease Revenue', value:'', up:true },{ label:'Maintenance Costs', value:'', up:false },{ label:'Net Profit', value:'', up:true },{ label:'Fleet Value', value:'', up:true }]
   },
   biz4: {
     docs: ['License & Compliance Docs','Product Catalog 2025','Vendor Agreements','Lab Test Reports'],
-    financials: [{ label:'Sales Revenue', value:'—', up:true },{ label:'COGS', value:'—', up:false },{ label:'Net Profit', value:'—', up:true },{ label:'Sales Growth', value:'—', up:true }]
+    financials: [{ label:'Sales Revenue', value:'', up:true },{ label:'COGS', value:'', up:false },{ label:'Net Profit', value:'', up:true },{ label:'Sales Growth', value:'', up:true }]
   },
   biz5: {
     docs: ['Payroll Processing Guide','HR Policy Manual','Client Onboarding Docs','Service Agreements'],
-    financials: [{ label:'Service Revenue', value:'—', up:true },{ label:'Operating Costs', value:'—', up:false },{ label:'Net Profit', value:'—', up:true },{ label:'Client Growth', value:'—', up:true }]
+    financials: [{ label:'Service Revenue', value:'', up:true },{ label:'Operating Costs', value:'', up:false },{ label:'Net Profit', value:'', up:true },{ label:'Client Growth', value:'', up:true }]
   },
 };
 
@@ -72,4 +72,4 @@ let twoFACode = null;
 let twoFAExpiry = null;
 let countdownTimer = null;
 
-// ────────────────────────────
+// 
