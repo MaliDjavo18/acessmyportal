@@ -2,10 +2,10 @@ let allDocs = [];
 let activeDocsBiz = 'biz1';
 
 function getFileIcon(fileType) {
-  if (fileType.includes('pdf')) return { icon: '📄', cls: 'pdf' };
-  if (fileType.includes('sheet') || fileType.includes('excel') || fileType.includes('xlsx') || fileType.includes('xls')) return { icon: '📊', cls: 'excel' };
-  if (fileType.includes('word') || fileType.includes('doc')) return { icon: '📝', cls: 'word' };
-  return { icon: '📁', cls: 'pdf' };
+  if (fileType.includes('pdf')) return { icon: '', cls: 'pdf' };
+  if (fileType.includes('sheet') || fileType.includes('excel') || fileType.includes('xlsx') || fileType.includes('xls')) return { icon: '', cls: 'excel' };
+  if (fileType.includes('word') || fileType.includes('doc')) return { icon: '', cls: 'word' };
+  return { icon: '', cls: 'pdf' };
 }
 
 async function handleFileUpload(event) {
@@ -78,9 +78,9 @@ function renderAdminDocs() {
       <div style="font-size:1.5rem;">${icon}</div>
       <div class="admin-doc-info">
         <div class="admin-doc-name">${doc.name}</div>
-        <div class="admin-doc-meta">${doc.description || ''} · ${date}</div>
+        <div class="admin-doc-meta">${doc.description || ''}  ${date}</div>
       </div>
-      <button class="btn-icon danger" onclick="deleteDoc('${doc.id}', '${doc.file_path}')">🗑 Delete</button>
+      <button class="btn-icon danger" onclick="deleteDoc('${doc.id}', '${doc.file_path}')"> Delete</button>
     </div>`;
   }).join('');
 }
@@ -124,9 +124,9 @@ function closePDFModal() {
 async function renderUserDocs(bizId) {
   const sectionsEl = document.getElementById('user-sections');
   const biz = BUSINESSES.find(b => b.id === bizId);
-  sectionsEl.innerHTML = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">← Back to Businesses</button>
+  sectionsEl.innerHTML = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'"> Back to Businesses</button>
   <div class="u-card">
-    <div class="u-card-title">📁 Documents — ${biz.name}</div>
+    <div class="u-card-title"> Documents  ${biz.name}</div>
     <div id="user-docs-loading" style="text-align:center;color:var(--muted);padding:2rem;">Loading documents...</div>
     <div class="docs-grid" id="user-docs-grid" style="display:none;"></div>
   </div>`;
@@ -146,7 +146,7 @@ async function renderUserDocs(bizId) {
         <div class="doc-card-icon ${cls}">${icon}</div>
         <div class="doc-card-name">${doc.name}</div>
         ${doc.description ? `<div class="doc-card-desc">${doc.description}</div>` : ''}
-        <div class="doc-card-date">📅 ${date}</div>
+        <div class="doc-card-date"> ${date}</div>
       </div>`;
     }).join('');
   } catch(e) {
