@@ -128,7 +128,7 @@
     <div class="topbar-right">
       <div class="topbar-pill"><div class="pill-dot admin"></div>Admin Panel</div>
       <div class="avatar admin-av">A</div>
-      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="viewAsAdmin()">👁 View Portal</button>
+      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="viewAsAdmin()">View Portal</button>
       <button class="btn-sm" onclick="doLogout()">Log out</button>
     </div>
   </nav>
@@ -145,7 +145,7 @@
     </div>
     <div id="tab-users" class="tab-panel active">
       <div class="a-card">
-        <div class="a-card-title">âï¸ Invite New User</div>
+        <div class="a-card-title">Invite New User</div>
         <div class="add-form">
           <div class="input-group">
             <label class="field-label">Display Name</label>
@@ -155,12 +155,12 @@
             <label class="field-label">Email Address</label>
             <input type="text" id="new-email" placeholder="e.g. john@email.com">
           </div>
-          <button class="btn-add" onclick="inviteUser()">Send Invite â</button>
+          <button class="btn-add" onclick="inviteUser()">Send Invite</button>
         </div>
         <p class="error-msg" id="add-user-error" style="margin-top:0.5rem;"></p>
       </div>
       <div class="a-card">
-        <div class="a-card-title">ð¥ All Users <span style="font-size:0.75rem;font-weight:400;color:var(--muted);margin-left:4px;" id="user-count-label"></span></div>
+        <div class="a-card-title">All Users <span style="font-size:0.75rem;font-weight:400;color:var(--muted);margin-left:4px;" id="user-count-label"></span></div>
         <table class="user-table">
           <thead><tr><th>User</th><th>Business Access</th><th>Actions</th></tr></thead>
           <tbody id="user-tbody"></tbody>
