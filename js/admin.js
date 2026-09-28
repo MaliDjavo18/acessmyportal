@@ -179,7 +179,21 @@ function renderPermBizList() {
       </div>
     </div>`;
   }).join('');
-  container.innerHTML = bizRows;
+
+  const pp = pendingPerms['personal'] || { access: false };
+  const personalRow = `<div class="perm-biz" style="border-top:2px solid var(--accent);margin-top:8px;padding-top:8px;">
+    <div class="perm-biz-top">
+      <div class="perm-biz-name">&#127968; Mamic Family <span style="font-size:0.72rem;color:var(--muted);">Personal</span></div>
+      <label class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="perm-access-personal" ${pp.access ? 'checked' : ''} onchange="onAccessToggle('personal')">
+          <span class="slider"></span>
+        </label>
+        <span class="perm-biz-access-label ${pp.access ? 'on' : 'off'}" id="perm-access-label-personal">${pp.access ? 'Access On' : 'No Access'}</span>
+      </label>
+    </div>
+  </div>`;
+  container.innerHTML = bizRows + personalRow;
 }
 
 function onAccessToggle(bizId) {
