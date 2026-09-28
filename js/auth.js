@@ -297,11 +297,15 @@ function doLogout() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('login-screen').classList.contains('active')) {
-    if (document.getElementById('login-step2').style.display !== 'none') {
-      verify2FA();
-    } else {
-      doLogin();
+  if (e.key === 'Enter') {
+    if (document.getElementById('invite-screen').classList.contains('active')) {
+      completeInvite();
+    } else if (document.getElementById('login-screen').classList.contains('active')) {
+      if (document.getElementById('login-step2').style.display !== 'none') {
+        verify2FA();
+      } else {
+        doLogin();
+      }
     }
   }
 });
