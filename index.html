@@ -38,7 +38,7 @@
         </div>
         <p class="error-msg" id="login-error">Incorrect username or password.</p>
       </div>
-      <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+      <button class="btn-primary" onclick="doLogin()">Sign In â</button>
     </div>
     <div id="login-step3" style="display:none;">
       <p class="login-subtitle">Set up your authenticator app to secure your account.</p>
@@ -57,7 +57,7 @@
         </div>
         <p class="error-msg" id="totp-setup-error">Invalid code. Please try again.</p>
       </div>
-      <button class="btn-primary" onclick="confirmTOTPSetup()">Activate & Sign In →</button>
+      <button class="btn-primary" onclick="confirmTOTPSetup()">Activate & Sign In â</button>
     </div>
     <div id="login-step2" style="display:none;">
       <p class="login-subtitle">Open your authenticator app and enter the 6-digit code for Goran's Business Hub.</p>
@@ -69,8 +69,8 @@
         </div>
         <p class="error-msg" id="twofa-error">Invalid code. Please try again.</p>
       </div>
-      <button class="btn-primary" onclick="verify2FA()">Verify Code →</button>
-      <button class="btn-sm" style="width:100%;margin-top:0.75rem;text-align:center;" onclick="backToLogin()">← Back to login</button>
+      <button class="btn-primary" onclick="verify2FA()">Verify Code â</button>
+      <button class="btn-sm" style="width:100%;margin-top:0.75rem;text-align:center;" onclick="backToLogin()">â Back to login</button>
     </div>
   </div>
 </div>
@@ -111,10 +111,10 @@
         </div>
         <p class="error-msg" id="invite-error"></p>
       </div>
-      <button class="btn-primary" onclick="completeInvite()">Create Account →</button>
+      <button class="btn-primary" onclick="completeInvite()">Create Account â</button>
     </div>
     <div id="invite-invalid" style="display:none;text-align:center;padding:2rem 0;">
-      <div style="font-size:2rem;margin-bottom:1rem;">⚠️</div>
+      <div style="font-size:2rem;margin-bottom:1rem;">â ï¸</div>
       <div style="font-weight:600;margin-bottom:0.5rem;">Invalid or Expired Link</div>
       <div style="color:var(--muted);font-size:0.85rem;">This invitation link has expired or already been used. Please contact your admin for a new invite.</div>
     </div>
@@ -128,6 +128,7 @@
     <div class="topbar-right">
       <div class="topbar-pill"><div class="pill-dot admin"></div>Admin Panel</div>
       <div class="avatar admin-av">A</div>
+      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="viewAsAdmin()">👁 View Portal</button>
       <button class="btn-sm" onclick="doLogout()">Log out</button>
     </div>
   </nav>
@@ -137,14 +138,14 @@
       <div class="page-sub">Manage users, businesses, and permissions from here.</div>
     </div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('users')">👥 Users & Permissions</button>
-      <button class="tab" onclick="switchTab('businesses')">🏢 Businesses</button>
-      <button class="tab" onclick="switchTab('content')">📁 Content</button>
-      <button class="tab" onclick="switchTab('documents')">📄 Documents</button>
+      <button class="tab active" onclick="switchTab('users')">ð¥ Users & Permissions</button>
+      <button class="tab" onclick="switchTab('businesses')">ð¢ Businesses</button>
+      <button class="tab" onclick="switchTab('content')">ð Content</button>
+      <button class="tab" onclick="switchTab('documents')">ð Documents</button>
     </div>
     <div id="tab-users" class="tab-panel active">
       <div class="a-card">
-        <div class="a-card-title">✉️ Invite New User</div>
+        <div class="a-card-title">âï¸ Invite New User</div>
         <div class="add-form">
           <div class="input-group">
             <label class="field-label">Display Name</label>
@@ -154,12 +155,12 @@
             <label class="field-label">Email Address</label>
             <input type="text" id="new-email" placeholder="e.g. john@email.com">
           </div>
-          <button class="btn-add" onclick="inviteUser()">Send Invite →</button>
+          <button class="btn-add" onclick="inviteUser()">Send Invite â</button>
         </div>
         <p class="error-msg" id="add-user-error" style="margin-top:0.5rem;"></p>
       </div>
       <div class="a-card">
-        <div class="a-card-title">👥 All Users <span style="font-size:0.75rem;font-weight:400;color:var(--muted);margin-left:4px;" id="user-count-label"></span></div>
+        <div class="a-card-title">ð¥ All Users <span style="font-size:0.75rem;font-weight:400;color:var(--muted);margin-left:4px;" id="user-count-label"></span></div>
         <table class="user-table">
           <thead><tr><th>User</th><th>Business Access</th><th>Actions</th></tr></thead>
           <tbody id="user-tbody"></tbody>
@@ -168,20 +169,20 @@
     </div>
     <div id="tab-businesses" class="tab-panel">
       <div class="a-card">
-        <div class="a-card-title">🏢 Your Businesses</div>
+        <div class="a-card-title">ð¢ Your Businesses</div>
         <div class="biz-grid" id="biz-grid"></div>
       </div>
     </div>
     <div id="tab-content" class="tab-panel">
       <div class="a-card">
-        <div class="a-card-title">📁 Manage Content Per Business</div>
+        <div class="a-card-title">ð Manage Content Per Business</div>
         <div class="biz-filter-row" id="content-biz-filter"></div>
         <div id="content-list"></div>
       </div>
     </div>
     <div id="tab-documents" class="tab-panel">
       <div class="a-card">
-        <div class="a-card-title">📄 Upload Documents</div>
+        <div class="a-card-title">ð Upload Documents</div>
         <div style="margin-bottom:1rem;">
           <label class="field-label">Select Business</label>
           <select class="sheets-select" id="upload-biz-select" style="width:100%;margin-bottom:0.75rem;"></select>
@@ -191,13 +192,13 @@
           <input type="text" id="upload-doc-desc" placeholder="Brief description" style="width:100%;margin-bottom:0.75rem;">
         </div>
         <div class="upload-area" onclick="document.getElementById('doc-file-input').click()">
-          <div class="upload-area-icon">📁</div>
+          <div class="upload-area-icon">ð</div>
           <div class="upload-area-text"><strong>Click to upload</strong> or drag and drop<br>PDF, Excel, Word files supported</div>
         </div>
         <div id="upload-progress" style="display:none;text-align:center;color:var(--muted);font-size:0.85rem;padding:1rem;">Uploading... please wait</div>
       </div>
       <div class="a-card">
-        <div class="a-card-title">📋 All Documents <span style="font-size:0.75rem;font-weight:400;color:var(--muted);" id="docs-count"></span></div>
+        <div class="a-card-title">ð All Documents <span style="font-size:0.75rem;font-weight:400;color:var(--muted);" id="docs-count"></span></div>
         <div class="biz-filter-row" id="docs-biz-filter"></div>
         <div id="admin-docs-list"></div>
       </div>
@@ -211,7 +212,7 @@
     <div class="modal-header" style="margin-bottom:1.5rem;">
       <div class="modal-title" id="perm-modal-title">Edit Permissions</div>
       <div class="modal-sub" id="perm-modal-sub">Toggle business access and choose what they can see.</div>
-      <button class="modal-close" onclick="closePermModal()">✕</button>
+      <button class="modal-close" onclick="closePermModal()">â</button>
     </div>
     <div id="perm-biz-list"></div>
     <div class="modal-footer">
@@ -244,7 +245,7 @@
 <div class="pdf-modal" id="pdf-modal">
   <div class="pdf-modal-header">
     <div class="pdf-modal-title" id="pdf-modal-title">Document</div>
-    <button class="pdf-modal-close" onclick="closePDFModal()">✕ Close</button>
+    <button class="pdf-modal-close" onclick="closePDFModal()">â Close</button>
   </div>
   <div class="pdf-modal-body">
     <iframe id="pdf-iframe" src="" allowfullscreen></iframe>
