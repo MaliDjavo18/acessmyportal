@@ -192,7 +192,7 @@ function onAccessToggle(bizId) {
   const checks = document.getElementById('perm-checks-' + bizId);
   checks.style.opacity = checked ? '1' : '0.3';
   checks.style.pointerEvents = checked ? 'auto' : 'none';
-  if (!checked) {
+  if (!checked && bizId !== 'personal') {
     pendingPerms[bizId].docs = false;
     pendingPerms[bizId].financials = false;
     document.getElementById('perm-docs-' + bizId).checked = false;
