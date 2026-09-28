@@ -1,5 +1,5 @@
-// SECURITY — Login attempt limiting
-// ────────────────────────────
+// SECURITY  Login attempt limiting
+// 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MINUTES = 30;
 let loginAttempts = {};
@@ -32,9 +32,9 @@ function getRemainingLockout(username) {
   return Math.ceil(LOCKOUT_MINUTES - elapsed);
 }
 
-// ────────────────────────────
-// SECURITY — Session timeout (30 minutes)
-// ────────────────────────────
+// 
+// SECURITY  Session timeout (30 minutes)
+// 
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 let sessionTimer = null;
 let lastActivity = Date.now();
@@ -55,9 +55,9 @@ document.addEventListener('mousemove', resetSessionTimer);
 document.addEventListener('keypress', resetSessionTimer);
 document.addEventListener('click', resetSessionTimer);
 
-// ────────────────────────────
-// TOTP — Authenticator App 2FA
-// ────────────────────────────
+// 
+// TOTP  Authenticator App 2FA
+// 
 let pendingTOTPSecret = null;
 
 function generateTOTPSecret() {
@@ -166,7 +166,7 @@ function verify2FA() {
     return;
   }
 
-  // Code correct — complete login
+  // Code correct  complete login
   currentUser = { role: 'user', data: pendingLoginUser };
   resetAttempts(pendingLoginUser.username);
   resetSessionTimer();
@@ -202,7 +202,7 @@ async function doLogin() {
     currentUser = { role: 'admin' };
     btn.textContent = 'Loading...';
     await loadUsers();
-    btn.textContent = 'Sign In →';
+    btn.textContent = 'Sign In ';
     resetAttempts(u);
     resetSessionTimer();
     showScreen('admin-screen');
@@ -240,13 +240,13 @@ async function doLogin() {
       perms.forEach(p => { permissions[p.business_id] = { access: true, docs: p.can_view_docs, financials: p.can_view_financials }; });
       pendingLoginUser = { ...user, displayName: user.display_name, permissions };
 
-      btn.textContent = 'Sign In →';
+      btn.textContent = 'Sign In ';
 
       if (!user.totp_enabled || !user.totp_secret) {
-        // First time — show TOTP setup
+        // First time  show TOTP setup
         await showTOTPSetup(user);
       } else {
-        // Has TOTP — show verification screen
+        // Has TOTP  show verification screen
         document.getElementById('login-step1').style.display = 'none';
         document.getElementById('login-step2').style.display = 'block';
       }
@@ -265,7 +265,7 @@ async function doLogin() {
     err.textContent = 'Connection error: ' + e.message;
     err.classList.add('show');
   }
-  btn.textContent = 'Sign In →';
+  btn.textContent = 'Sign In ';
 }
 
 async function loadUsers() {
@@ -310,9 +310,9 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ────────────────────────────
+// 
 // INVITATION SYSTEM
-// ────────────────────────────
+// 
 const EMAILJS_INVITE_TEMPLATE = 'template_3g3e4kk';
 
 function generateInviteToken() {
@@ -378,7 +378,7 @@ function showInviteLink(link, email, emailSent) {
   box.style.cssText = 'margin-top:1rem;padding:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;';
   box.innerHTML = `
     <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.5rem;color:var(--text);">
-      ${emailSent ? '✅ Invite email sent to ' + email + '!' : '⚠️ Email could not be sent — share this link manually:'}
+      ${emailSent ? ' Invite email sent to ' + email + '!' : ' Email could not be sent  share this link manually:'}
     </div>
     <div style="display:flex;gap:0.5rem;align-items:center;">
       <input id="invite-link-input" type="text" value="${link}" readonly
