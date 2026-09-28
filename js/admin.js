@@ -67,9 +67,9 @@ function renderUserTable() {
       <td>${grantedBizIds.length > 0 ? bizBadges : '<span style="color:var(--muted);font-size:0.8rem;">No access granted</span>'}</td>
       <td>
         <div class="actions-row">
-          <button class="btn-icon" onclick="openPermModal(${idx})">ð Permissions</button>
-          <button class="btn-icon" onclick="previewAsUser(${idx})">ð Preview</button>
-          <button class="btn-icon danger" onclick="deleteUser(${idx})">ð Remove</button>
+          <button class="btn-icon" onclick="openPermModal(${idx})">Permissions</button>
+          <button class="btn-icon" onclick="previewAsUser(${idx})">Preview</button>
+          <button class="btn-icon danger" onclick="deleteUser(${idx})">Remove</button>
         </div>
       </td>
     </tr>`;
