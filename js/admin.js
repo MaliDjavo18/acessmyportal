@@ -24,6 +24,9 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById('tab-' + name);
   if (panel) panel.classList.add('active');
+  if (name === 'businesses') {
+    renderBizGrid();
+  }
   if (name === 'documents') {
     const sel = document.getElementById('upload-biz-select');
     if (sel && sel.options.length === 0) {
