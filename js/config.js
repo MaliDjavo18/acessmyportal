@@ -57,7 +57,7 @@ const CONTENT = {
   },
 };
 
-const ADMIN = { username: 'admin', password: 'Portal@Delta99!' };
+// Admin login is handled through Supabase (role: 'admin' in users table)
 const RESEND_API_KEY = 're_AsM1mQSL_6eroVM9iud5RgPScQsuJJa4F';
 const FROM_EMAIL = 'noreply@acessmyportal.com';
 
