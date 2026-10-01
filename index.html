@@ -207,7 +207,14 @@
     <!-- MAMIC FAMILY TAB -->
     <div id="tab-personal" class="tab-panel">
       <div class="a-card">
-        <div class="a-card-title">🏡 Mamic Family</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.5rem;">
+          <div class="a-card-title" style="margin:0;">🏡 Mamic Family</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="password" id="set-pin-input" placeholder="New PIN (4–8 digits)" maxlength="8" inputmode="numeric" pattern="[0-9]*" style="width:160px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;color:var(--text);font-size:0.82rem;">
+            <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="adminSetFamilyPin()">Set PIN</button>
+          </div>
+        </div>
+        <div id="set-pin-error" style="color:#f87171;font-size:0.78rem;margin-bottom:0.5rem;"></div>
         <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem;">Share personal content with your family — notes, documents, contacts, and links.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
@@ -245,6 +252,28 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- FAMILY PIN MODAL -->
+<div class="modal-overlay" id="family-pin-modal">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-header" style="margin-bottom:1.25rem;">
+      <div>
+        <div class="modal-title">🔒 Mamic Family</div>
+        <div class="modal-sub">Enter your PIN to access this section.</div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <input type="password" id="family-pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="Enter PIN" autocomplete="off"
+        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.65rem 0.85rem;color:var(--text);font-size:1.1rem;letter-spacing:0.2em;text-align:center;box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter')submitFamilyPin()">
+      <div id="family-pin-error" style="color:#f87171;font-size:0.8rem;margin-top:0.5rem;min-height:1em;text-align:center;"></div>
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <button class="btn-sm" style="flex:1;padding:0.55rem;" onclick="document.getElementById('family-pin-modal').classList.remove('open')">Cancel</button>
+      <button class="btn-add" style="flex:2;padding:0.55rem;" onclick="submitFamilyPin()">Unlock</button>
+    </div>
   </div>
 </div>
 
