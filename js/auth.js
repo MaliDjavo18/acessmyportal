@@ -1,9 +1,10 @@
 // SECURITY  Login attempt limiting (server-side via Supabase)
-// 
+//
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MINUTES = 30;
 
 async function checkLockout(username) {
+  // Returns { locked: bool, remainingMins: number, userId: number|null, attempts: number }
   try {
     const rows = await sbFetch(`users?username=eq.${encodeURIComponent(username)}&select=id,failed_attempts,locked_until`);
     if (!rows || rows.length === 0) return { locked: false, remainingMins: 0, userId: null, attempts: 0 };
@@ -48,7 +49,7 @@ async function resetAttempts(userId) {
 // 
 // SECURITY  Session timeout (30 minutes)
 // 
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 let sessionTimer = null;
 let lastActivity = Date.now();
 
@@ -63,6 +64,7 @@ function resetSessionTimer() {
   }, SESSION_TIMEOUT);
 }
 
+// Track user activity
 document.addEventListener('mousemove', resetSessionTimer);
 document.addEventListener('keypress', resetSessionTimer);
 document.addEventListener('click', resetSessionTimer);
@@ -113,6 +115,7 @@ async function showTOTPSetup(user) {
   document.getElementById('login-step3').style.display = 'block';
   document.getElementById('totp-manual-code').textContent = pendingTOTPSecret;
 
+  // Generate QR code using qrcodejs
   setTimeout(() => {
     try {
       const container = document.getElementById('qr-canvas');
@@ -141,13 +144,14 @@ async function confirmTOTPSetup() {
     return;
   }
 
+  // Save secret to database (encrypted via server-side RPC)
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${pendingLoginUser.id}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ totp_secret: pendingTOTPSecret, totp_enabled: true })
+    await sbFetch('rpc/save_totp_secret', {
+      method: 'POST',
+      body: JSON.stringify({ p_user_id: pendingLoginUser.id, p_secret: pendingTOTPSecret })
     });
 
+    // Complete login
     currentUser = { role: 'user', data: pendingLoginUser };
     await resetAttempts(pendingLoginUser.id);
     resetSessionTimer();
@@ -170,8 +174,9 @@ function verify2FA() {
     return;
   }
 
+  // Code correct  complete login
   currentUser = { role: 'user', data: pendingLoginUser };
-  resetAttempts(pendingLoginUser.id);
+  await resetAttempts(pendingLoginUser.id);
   resetSessionTimer();
   showScreen('user-screen');
   renderUserDash();
@@ -186,7 +191,6 @@ function backToLogin() {
   document.getElementById('twofa-code').value = '';
   document.getElementById('twofa-error').classList.remove('show');
 }
-
 async function doLogin() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
@@ -194,6 +198,7 @@ async function doLogin() {
   const btn = document.querySelector('.btn-primary');
   err.classList.remove('show');
 
+  // Check lockout (server-side)
   btn.textContent = 'Checking...';
   const lockStatus = await checkLockout(u);
   if (lockStatus.locked) {
@@ -203,20 +208,26 @@ async function doLogin() {
     btn.textContent = 'Sign In ';
     return;
   }
-
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_password`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ input_username: u, input_password: p })
     });
 
-    if (!response.ok) throw new Error('Database error: ' + response.status);
+    if (!response.ok) {
+      throw new Error('Database error: ' + response.status);
+    }
 
     const users = await response.json();
     const user = users.length > 0 ? users[0] : null;
 
     if (user) {
+      // Admin role — skip TOTP, go straight to admin screen
       if (user.role === 'admin') {
         currentUser = { role: 'admin' };
         btn.textContent = 'Loading...';
@@ -229,6 +240,7 @@ async function doLogin() {
         return;
       }
 
+      // Load permissions for regular users
       const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
       });
@@ -241,8 +253,10 @@ async function doLogin() {
       btn.textContent = 'Sign In ';
 
       if (!user.totp_enabled || !user.totp_secret) {
+        // First time  show TOTP setup
         await showTOTPSetup(user);
       } else {
+        // Has TOTP  show verification screen
         document.getElementById('login-step1').style.display = 'none';
         document.getElementById('login-step2').style.display = 'block';
       }
@@ -327,18 +341,21 @@ async function inviteUser() {
   if (!e.includes('@')) { showError(err, 'Please enter a valid email address.'); return; }
 
   try {
+    // Generate secure token
     const token = generateInviteToken();
     const inviteLink = `${window.location.origin}?invite=${token}`;
 
-    await sbFetch('invitations', {
+    // Save invitation to database (email encrypted server-side)
+    await sbFetch('rpc/create_invitation', {
       method: 'POST',
-      body: JSON.stringify({ email: e, display_name: d, token: token })
+      body: JSON.stringify({ p_email: e, p_display_name: d, p_token: token })
     });
 
     document.getElementById('new-displayname').value = '';
     document.getElementById('new-email').value = '';
     err.classList.remove('show');
 
+    // Try sending email, but always show the link
     let emailSent = false;
     try {
       const emailRes = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -354,6 +371,7 @@ async function inviteUser() {
       emailSent = emailRes.ok;
     } catch(emailErr) { emailSent = false; }
 
+    // Always show the invite link so it can be copied and shared manually
     showInviteLink(inviteLink, e, emailSent);
 
   } catch(ex) {
@@ -362,6 +380,7 @@ async function inviteUser() {
 }
 
 function showInviteLink(link, email, emailSent) {
+  // Remove any existing invite link box
   const existing = document.getElementById('invite-link-box');
   if (existing) existing.remove();
 
@@ -390,6 +409,7 @@ async function checkInviteToken() {
   const token = params.get('invite');
   if (!token) return;
 
+  // Show invite screen
   showScreen('invite-screen');
 
   try {
@@ -401,12 +421,14 @@ async function checkInviteToken() {
     }
 
     const invite = invites[0];
+    // Check if expired
     if (new Date(invite.expires_at) < new Date()) {
       document.getElementById('invite-form').style.display = 'none';
       document.getElementById('invite-invalid').style.display = 'block';
       return;
     }
 
+    // Pre-fill display name
     document.getElementById('invite-displayname').value = invite.display_name;
     window.currentInvite = invite;
   } catch(e) {
@@ -414,11 +436,9 @@ async function checkInviteToken() {
     document.getElementById('invite-invalid').style.display = 'block';
   }
 }
-
 function isStrongPassword(p) {
   return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p);
 }
-
 async function completeInvite() {
   const displayName = document.getElementById('invite-displayname').value.trim();
   const username = document.getElementById('invite-username').value.trim().toLowerCase();
@@ -427,23 +447,45 @@ async function completeInvite() {
   const err = document.getElementById('invite-error');
   err.classList.remove('show');
 
-  if (!displayName || !username || !password || !password2) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
-  if (password !== password2) { err.textContent = 'Passwords do not match.'; err.classList.add('show'); return; }
-  if (!isStrongPassword(password)) { err.textContent = 'Password must be 8+ characters with uppercase, number and symbol.'; err.classList.add('show'); return; }
+  if (!displayName || !username || !password || !password2) { 
+    err.textContent = 'Please fill in all fields.'; 
+    err.classList.add('show'); 
+    return; 
+  }
+  if (password !== password2) { 
+    err.textContent = 'Passwords do not match.'; 
+    err.classList.add('show'); 
+    return; 
+  }
+  if (!isStrongPassword(password)) { 
+    err.textContent = 'Password must be 8+ characters with uppercase, number and symbol.'; 
+    err.classList.add('show'); 
+    return; 
+  }
 
   try {
-    await sbFetch('rpc/create_invited_user', {
+    // Create user account with encrypted password
+    const result = await sbFetch('rpc/create_invited_user', {
       method: 'POST',
-      body: JSON.stringify({ p_username: username, p_password: password, p_display_name: displayName, p_email: window.currentInvite.email })
+      body: JSON.stringify({ 
+        p_username: username, 
+        p_password: password, 
+        p_display_name: displayName, 
+        p_email: window.currentInvite.email 
+      })
     });
 
+    // Mark invitation as used
     await sbFetch(`invitations?id=eq.${window.currentInvite.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ used: true }),
       prefer: 'return=minimal'
     });
 
+    // Remove invite token from URL
     window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Show success and redirect to login
     showScreen('login-screen');
     showToast('Account created! You can now log in.', 'green');
   } catch(e) {
@@ -452,4 +494,5 @@ async function completeInvite() {
   }
 }
 
+// Check for invite token on page load
 window.addEventListener('DOMContentLoaded', checkInviteToken);
