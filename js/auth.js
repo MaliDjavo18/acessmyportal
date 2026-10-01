@@ -198,18 +198,6 @@ async function doLogin() {
     return;
   }
 
-  if (u === ADMIN.username && p === ADMIN.password) {
-    currentUser = { role: 'admin' };
-    btn.textContent = 'Loading...';
-    await loadUsers();
-    btn.textContent = 'Sign In ';
-    resetAttempts(u);
-    resetSessionTimer();
-    showScreen('admin-screen');
-    renderAdmin();
-    return;
-  }
-
   btn.textContent = 'Checking...';
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_password`, {
@@ -230,6 +218,19 @@ async function doLogin() {
     const user = users.length > 0 ? users[0] : null;
     
     if (user) {
+      // Admin role — skip TOTP, go straight to admin screen
+      if (user.role === 'admin') {
+        currentUser = { role: 'admin' };
+        btn.textContent = 'Loading...';
+        await loadUsers();
+        btn.textContent = 'Sign In ';
+        resetAttempts(u);
+        resetSessionTimer();
+        showScreen('admin-screen');
+        renderAdmin();
+        return;
+      }
+
       // Load permissions
       const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
