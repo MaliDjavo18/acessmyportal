@@ -299,6 +299,11 @@ async function savePerms() {
         can_view_financials: pendingPerms[b.id].financials || false
       }));
 
+    // Save personal/Mamic Family access
+    if (pendingPerms['personal'] && pendingPerms['personal'].access) {
+      newPerms.push({ user_id: user.id, business_id: 'personal', can_view_docs: false, can_view_financials: false });
+    }
+
     if (newPerms.length > 0) {
       await sbFetch('permissions', { method: 'POST', body: JSON.stringify(newPerms) });
     }
@@ -309,6 +314,9 @@ async function savePerms() {
         USERS[editingUserIdx].permissions[b.id] = { ...pendingPerms[b.id] };
       }
     });
+    if (pendingPerms['personal'] && pendingPerms['personal'].access) {
+      USERS[editingUserIdx].permissions['personal'] = { access: true };
+    }
 
     closePermModal();
     renderUserTable();
