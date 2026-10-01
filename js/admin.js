@@ -16,7 +16,13 @@ function renderAdmin() {
   renderContentTab();
 }
 
+let familyPinVerified = false;
+
 function switchTab(name) {
+  if (name === 'personal' && !familyPinVerified) {
+    showFamilyPinModal();
+    return;
+  }
   document.querySelectorAll('.tab').forEach((t, i) => {
     const names = ['users','businesses','content','documents','personal'];
     t.classList.toggle('active', names[i] === name);
@@ -41,6 +47,61 @@ function switchTab(name) {
   }
   if (name === 'personal') {
     loadPersonalData();
+  }
+}
+
+function showFamilyPinModal() {
+  const modal = document.getElementById('family-pin-modal');
+  if (!modal) return;
+  document.getElementById('family-pin-input').value = '';
+  document.getElementById('family-pin-error').textContent = '';
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('family-pin-input').focus(), 100);
+}
+
+async function submitFamilyPin() {
+  const pin = document.getElementById('family-pin-input').value.trim();
+  const errEl = document.getElementById('family-pin-error');
+  if (!pin || pin.length < 4) {
+    errEl.textContent = 'Enter your 4-digit PIN.';
+    return;
+  }
+  try {
+    const result = await sbFetch('rpc/check_family_pin', {
+      method: 'POST',
+      body: JSON.stringify({ p_pin: pin })
+    });
+    if (result === true) {
+      familyPinVerified = true;
+      document.getElementById('family-pin-modal').classList.remove('open');
+      switchTab('personal');
+    } else {
+      errEl.textContent = 'Incorrect PIN. Try again.';
+      document.getElementById('family-pin-input').value = '';
+      document.getElementById('family-pin-input').focus();
+    }
+  } catch(e) {
+    errEl.textContent = 'Error verifying PIN. Try again.';
+  }
+}
+
+async function adminSetFamilyPin() {
+  const pin = document.getElementById('set-pin-input').value.trim();
+  const errEl = document.getElementById('set-pin-error');
+  if (!/^\d{4,8}$/.test(pin)) {
+    errEl.textContent = 'PIN must be 4–8 digits.';
+    return;
+  }
+  try {
+    await sbFetch('rpc/set_family_pin', {
+      method: 'POST',
+      body: JSON.stringify({ p_pin: pin })
+    });
+    document.getElementById('set-pin-input').value = '';
+    errEl.textContent = '';
+    showToast('Family PIN updated', 'green');
+  } catch(e) {
+    errEl.textContent = 'Failed to set PIN. Try again.';
   }
 }
 
