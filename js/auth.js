@@ -163,7 +163,7 @@ async function confirmTOTPSetup() {
   }
 }
 
-function verify2FA() {
+async function verify2FA() {
   const code = document.getElementById('twofa-code').value.trim();
   const err = document.getElementById('twofa-error');
   err.classList.remove('show');
