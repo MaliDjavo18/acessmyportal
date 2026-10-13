@@ -4,7 +4,7 @@ const MOOD_SHINE_BIZ_ID = 'biz4';
 const SHEET_YEARS = {
   '2024': ['October 2024', 'November 2024', 'December 2024'],
   '2025': ['January 2025', 'February 2025', 'March 2025', 'April 2025', 'May 2025', 'June 2025', 'July 2025', 'August 2025', 'September 2025', 'October 2025', 'November 2025', 'December 2025'],
-  '2026': ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026', 'July 2026', 'August 2026', 'September 2026']
+  '2026': ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026', 'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2026', 'December 2026']
 };
 
 let activeYear = '2026';
