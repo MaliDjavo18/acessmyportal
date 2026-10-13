@@ -200,22 +200,13 @@ async function loadMonthlyOverview(filterYear) {
   }
   const allRows = table.rows.map(r => r.c.map(cell => cell ? (cell.f || cell.v || '') : ''));
   const selectedYear = filterYear || document.getElementById('monthly-year-select')?.value || 'all';
-  const years = [...new Set(allRows.map(r => { const m = String(r[0]||'').trim(); const match = m.match(/\d{4}/); return match ? match[0] : null; }).filter(Boolean))].sort();
-  // Inject year selector if not present
-  const selectorContainerEl = document.getElementById('monthly-yearly');
-  if (selectorContainerEl && !document.getElementById('monthly-year-select')) {
-    const sel = document.createElement('select');
-    sel.id = 'monthly-year-select';
-    sel.style.cssText = 'background:#1a2235;color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;margin-bottom:1rem;';
-    sel.innerHTML = '<option value="all">All Years</option>' + years.map(y => `<option value="${y}" ${y === selectedYear ? 'selected' : ''}>${y}</option>`).join('');
-    sel.onchange = () => loadMonthlyOverview(sel.value);
-    selectorContainerEl.prepend(sel);
-  } else if (document.getElementById('monthly-year-select') && filterYear) {
-    document.getElementById('monthly-year-select').value = filterYear;
-  }
+  // Use SHEET_YEARS keys as available years (sheet column 0 has month names without year)
+  const years = typeof SHEET_YEARS !== 'undefined' ? Object.keys(SHEET_YEARS).sort() : [];
   let monthRows = allRows.filter(r => { const month = String(r[0] || '').trim(); const sales = parseFloat(String(r[1] || '').replace(/[$,]/g, '')); return month && !isNaN(sales) && sales > 0; });
-  if (selectedYear && selectedYear !== 'all') {
-    monthRows = monthRows.filter(r => String(r[0]||'').includes(selectedYear));
+  if (selectedYear && selectedYear !== 'all' && typeof SHEET_YEARS !== 'undefined' && SHEET_YEARS[selectedYear]) {
+    // SHEET_YEARS[year] has entries like "October 2024" — strip year to get just month names
+    const monthsInYear = SHEET_YEARS[selectedYear].map(m => m.replace(/\s*\d{4}\s*$/, '').trim());
+    monthRows = monthRows.filter(r => monthsInYear.includes(String(r[0]||'').trim()));
   }
   if (loadingEl) loadingEl.style.display = 'none';
   if (contentEl) contentEl.style.display = 'block';
@@ -238,6 +229,17 @@ async function loadMonthlyOverview(filterYear) {
           <div class="summary-value" style="color:var(--success)">${monthRows.length}</div>
         </div>
       </div>`;
+    // Inject year selector after summary cards so innerHTML reset doesn't wipe it
+    if (!document.getElementById('monthly-year-select')) {
+      const sel = document.createElement('select');
+      sel.id = 'monthly-year-select';
+      sel.style.cssText = 'background:#1a2235;color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;margin-bottom:1rem;display:block;';
+      sel.innerHTML = '<option value="all">All Years</option>' + years.map(y => `<option value="${y}" ${y === selectedYear ? 'selected' : ''}>${y}</option>`).join('');
+      sel.onchange = () => loadMonthlyOverview(sel.value);
+      yearlyEl.prepend(sel);
+    } else if (filterYear) {
+      document.getElementById('monthly-year-select').value = filterYear;
+    }
   }
   const canvas = document.getElementById('monthly-chart');
   if (canvas) {
