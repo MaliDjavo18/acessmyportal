@@ -202,11 +202,27 @@ async function loadMonthlyOverview(filterYear) {
   const selectedYear = filterYear || document.getElementById('monthly-year-select')?.value || 'all';
   // Use SHEET_YEARS keys as available years (sheet column 0 has month names without year)
   const years = typeof SHEET_YEARS !== 'undefined' ? Object.keys(SHEET_YEARS).sort() : [];
-  let monthRows = allRows.filter(r => { const month = String(r[0] || '').trim(); const sales = parseFloat(String(r[1] || '').replace(/[$,]/g, '')); return month && !isNaN(sales) && sales > 0; });
-  if (selectedYear && selectedYear !== 'all' && typeof SHEET_YEARS !== 'undefined' && SHEET_YEARS[selectedYear]) {
-    // SHEET_YEARS[year] has entries like "October 2024" — strip year to get just month names
-    const monthsInYear = SHEET_YEARS[selectedYear].map(m => m.replace(/\s*\d{4}\s*$/, '').trim());
-    monthRows = monthRows.filter(r => monthsInYear.includes(String(r[0]||'').trim()));
+  // Build a row-index-to-year map using SHEET_YEARS order (rows are in chronological order)
+  const rowYearMap = [];
+  if (typeof SHEET_YEARS !== 'undefined') {
+    const sortedYears = Object.keys(SHEET_YEARS).sort();
+    for (const yr of sortedYears) {
+      const count = SHEET_YEARS[yr].length;
+      for (let i = 0; i < count; i++) rowYearMap.push(yr);
+    }
+  }
+  // Filter to valid data rows, preserving original index for year mapping
+  const validRowsWithIndex = allRows.map((r, i) => ({ row: r, origIdx: i })).filter(({ row }) => {
+    const month = String(row[0] || '').trim();
+    const sales = parseFloat(String(row[1] || '').replace(/[$,]/g, ''));
+    return month && !isNaN(sales) && sales > 0;
+  });
+  let monthRows;
+  if (selectedYear && selectedYear !== 'all' && rowYearMap.length > 0) {
+    // Filter by year using row index position in SHEET_YEARS sequence
+    monthRows = validRowsWithIndex.filter(({ origIdx }) => rowYearMap[origIdx] === selectedYear).map(({ row }) => row);
+  } else {
+    monthRows = validRowsWithIndex.map(({ row }) => row);
   }
   if (loadingEl) loadingEl.style.display = 'none';
   if (contentEl) contentEl.style.display = 'block';
