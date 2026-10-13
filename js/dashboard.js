@@ -202,14 +202,14 @@ async function loadMonthlyOverview(filterYear) {
   const selectedYear = filterYear || document.getElementById('monthly-year-select')?.value || 'all';
   const years = [...new Set(allRows.map(r => { const m = String(r[0]||'').trim(); const match = m.match(/\d{4}/); return match ? match[0] : null; }).filter(Boolean))].sort();
   // Inject year selector if not present
-  const yearlyEl = document.getElementById('monthly-yearly');
-  if (yearlyEl && !document.getElementById('monthly-year-select')) {
+  const selectorContainerEl = document.getElementById('monthly-yearly');
+  if (selectorContainerEl && !document.getElementById('monthly-year-select')) {
     const sel = document.createElement('select');
     sel.id = 'monthly-year-select';
     sel.style.cssText = 'background:#1a2235;color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;margin-bottom:1rem;';
     sel.innerHTML = '<option value="all">All Years</option>' + years.map(y => `<option value="${y}" ${y === selectedYear ? 'selected' : ''}>${y}</option>`).join('');
     sel.onchange = () => loadMonthlyOverview(sel.value);
-    yearlyEl.prepend(sel);
+    selectorContainerEl.prepend(sel);
   } else if (document.getElementById('monthly-year-select') && filterYear) {
     document.getElementById('monthly-year-select').value = filterYear;
   }
