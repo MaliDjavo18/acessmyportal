@@ -187,7 +187,7 @@ function switchDashTab(tab) {
   if (tab === 'monthly') loadMonthlyOverview();
 }
 
-async function loadMonthlyOverview() {
+async function loadMonthlyOverview(filterYear) {
   const loadingEl = document.getElementById('monthly-loading');
   const contentEl = document.getElementById('monthly-content');
   if (loadingEl) loadingEl.style.display = 'flex';
@@ -199,7 +199,24 @@ async function loadMonthlyOverview() {
     return;
   }
   const allRows = table.rows.map(r => r.c.map(cell => cell ? (cell.f || cell.v || '') : ''));
-  const monthRows = allRows.filter(r => { const month = String(r[0] || '').trim(); const sales = parseFloat(String(r[1] || '').replace(/[$,]/g, '')); return month && !isNaN(sales) && sales > 0; });
+  const selectedYear = filterYear || document.getElementById('monthly-year-select')?.value || 'all';
+  const years = [...new Set(allRows.map(r => { const m = String(r[0]||'').trim(); const match = m.match(/\d{4}/); return match ? match[0] : null; }).filter(Boolean))].sort();
+  // Inject year selector if not present
+  const yearlyEl = document.getElementById('monthly-yearly');
+  if (yearlyEl && !document.getElementById('monthly-year-select')) {
+    const sel = document.createElement('select');
+    sel.id = 'monthly-year-select';
+    sel.style.cssText = 'background:#1a2235;color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;margin-bottom:1rem;';
+    sel.innerHTML = '<option value="all">All Years</option>' + years.map(y => `<option value="${y}" ${y === selectedYear ? 'selected' : ''}>${y}</option>`).join('');
+    sel.onchange = () => loadMonthlyOverview(sel.value);
+    yearlyEl.prepend(sel);
+  } else if (document.getElementById('monthly-year-select') && filterYear) {
+    document.getElementById('monthly-year-select').value = filterYear;
+  }
+  let monthRows = allRows.filter(r => { const month = String(r[0] || '').trim(); const sales = parseFloat(String(r[1] || '').replace(/[$,]/g, '')); return month && !isNaN(sales) && sales > 0; });
+  if (selectedYear && selectedYear !== 'all') {
+    monthRows = monthRows.filter(r => String(r[0]||'').includes(selectedYear));
+  }
   if (loadingEl) loadingEl.style.display = 'none';
   if (contentEl) contentEl.style.display = 'block';
   let totalSales = 0, totalCustomers = 0;
@@ -209,11 +226,11 @@ async function loadMonthlyOverview() {
     yearlyEl.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
         <div class="summary-card" style="border-color:rgba(59,130,246,0.3);">
-          <div class="summary-label">Total Revenue (All Time)</div>
+          <div class="summary-label">Total Revenue ${selectedYear !== 'all' ? '(' + selectedYear + ')' : '(All Time)'}</div>
           <div class="summary-value">${formatCurrency(totalSales)}</div>
         </div>
         <div class="summary-card" style="border-color:rgba(6,182,212,0.3);">
-          <div class="summary-label">Total Customers (All Time)</div>
+          <div class="summary-label">Total Customers ${selectedYear !== 'all' ? '(' + selectedYear + ')' : '(All Time)'}</div>
           <div class="summary-value" style="color:var(--accent2)">${Math.round(totalCustomers).toLocaleString()}</div>
         </div>
         <div class="summary-card" style="border-color:rgba(16,185,129,0.3);">
