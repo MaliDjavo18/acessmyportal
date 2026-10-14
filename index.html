@@ -38,7 +38,7 @@
         </div>
         <p class="error-msg" id="login-error">Incorrect username or password.</p>
       </div>
-      <button class="btn-primary" onclick="doLogin()">Sign In </button>
+      <button class="btn-primary" id="btn-login">Sign In </button>
     </div>
     <div id="login-step3" style="display:none;">
       <p class="login-subtitle">Set up your authenticator app to secure your account.</p>
@@ -57,7 +57,7 @@
         </div>
         <p class="error-msg" id="totp-setup-error">Invalid code. Please try again.</p>
       </div>
-      <button class="btn-primary" onclick="confirmTOTPSetup()">Activate & Sign In </button>
+      <button class="btn-primary" id="btn-confirm-totp">Activate & Sign In </button>
     </div>
     <div id="login-step2" style="display:none;">
       <p class="login-subtitle">Open your authenticator app and enter the 6-digit code for Goran's Business Hub.</p>
@@ -69,8 +69,8 @@
         </div>
         <p class="error-msg" id="twofa-error">Invalid code. Please try again.</p>
       </div>
-      <button class="btn-primary" onclick="verify2FA()">Verify Code </button>
-      <button class="btn-sm" style="width:100%;margin-top:0.75rem;text-align:center;" onclick="backToLogin()"> Back to login</button>
+      <button class="btn-primary" id="btn-verify-2fa">Verify Code </button>
+      <button class="btn-sm" style="width:100%;margin-top:0.75rem;text-align:center;" id="btn-back-to-login"> Back to login</button>
     </div>
   </div>
 </div>
@@ -111,7 +111,7 @@
         </div>
         <p class="error-msg" id="invite-error"></p>
       </div>
-      <button class="btn-primary" onclick="completeInvite()">Create Account </button>
+      <button class="btn-primary" id="btn-complete-invite">Create Account </button>
     </div>
     <div id="invite-invalid" style="display:none;text-align:center;padding:2rem 0;">
       <div style="font-size:2rem;margin-bottom:1rem;"></div>
@@ -128,8 +128,8 @@
     <div class="topbar-right">
       <div class="topbar-pill"><div class="pill-dot admin"></div>Admin Panel</div>
       <div class="avatar admin-av">A</div>
-      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="viewAsAdmin()">View Portal</button>
-      <button class="btn-sm" onclick="doLogout()">Log out</button>
+      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" id="btn-view-as-admin">View Portal</button>
+      <button class="btn-sm" class="btn-logout">Log out</button>
     </div>
   </nav>
   <div class="admin-content">
@@ -138,11 +138,11 @@
       <div class="page-sub">Manage users, businesses, and permissions from here.</div>
     </div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('users')">Users &amp; Permissions</button>
-      <button class="tab" onclick="switchTab('businesses')">Businesses</button>
-      <button class="tab" onclick="switchTab('content')">Content</button>
-      <button class="tab" onclick="switchTab('documents')">Documents</button>
-        <button class="tab" onclick="switchTab('personal')">Mamic Family</button>
+      <button class="tab active" id="tab-btn-users">Users &amp; Permissions</button>
+      <button class="tab" id="tab-btn-businesses">Businesses</button>
+      <button class="tab" id="tab-btn-content">Content</button>
+      <button class="tab" id="tab-btn-documents">Documents</button>
+        <button class="tab" id="tab-btn-personal">Mamic Family</button>
     </div>
     <div id="tab-users" class="tab-panel active">
       <div class="a-card">
@@ -156,7 +156,7 @@
             <label class="field-label">Email Address</label>
             <input type="text" id="new-email" placeholder="e.g. john@email.com">
           </div>
-          <button class="btn-add" onclick="inviteUser()">Send Invite</button>
+          <button class="btn-add" id="btn-invite-user">Send Invite</button>
         </div>
         <p class="error-msg" id="add-user-error" style="margin-top:0.5rem;"></p>
       </div>
@@ -192,7 +192,7 @@
           <label class="field-label">Description (optional)</label>
           <input type="text" id="upload-doc-desc" placeholder="Brief description" style="width:100%;margin-bottom:0.75rem;">
         </div>
-        <div class="upload-area" onclick="document.getElementById('doc-file-input').click()">
+        <div class="upload-area" id="upload-area-doc">
           <div class="upload-area-icon"></div>
           <div class="upload-area-text"><strong>Click to upload</strong> or drag and drop<br>PDF, Excel, Word files supported</div>
         </div>
@@ -211,7 +211,7 @@
           <div class="a-card-title" style="margin:0;">🏡 Mamic Family</div>
           <div style="display:flex;gap:0.5rem;align-items:center;">
             <input type="password" id="set-pin-input" placeholder="New PIN (4–8 digits)" maxlength="8" inputmode="numeric" pattern="[0-9]*" style="width:160px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.75rem;color:var(--text);font-size:0.82rem;">
-            <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" onclick="adminSetFamilyPin()">Set PIN</button>
+            <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" id="btn-admin-set-family-pin">Set PIN</button>
           </div>
         </div>
         <div id="set-pin-error" style="color:#f87171;font-size:0.78rem;margin-bottom:0.5rem;"></div>
@@ -220,20 +220,20 @@
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
             <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">📝 Family Notes</div>
             <textarea id="personal-notes" placeholder="Write a note for your family..." style="width:100%;min-height:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;color:var(--text);font-size:0.83rem;font-family:'DM Sans',sans-serif;resize:vertical;box-sizing:border-box;"></textarea>
-            <button class="btn-add" style="margin-top:0.6rem;width:100%;padding:0.5rem;" onclick="savePersonalNote()">Save Note</button>
+            <button class="btn-add" style="margin-top:0.6rem;width:100%;padding:0.5rem;" id="btn-save-personal-note">Save Note</button>
             <div id="personal-notes-list" style="margin-top:0.75rem;"></div>
           </div>
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
             <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">🔗 Important Links</div>
             <input type="text" id="personal-link-label" placeholder="Label (e.g. School Portal)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
             <input type="text" id="personal-link-url" placeholder="https://..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
-            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" onclick="savePersonalLink()">Add Link</button>
+            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" id="btn-save-personal-link">Add Link</button>
             <div id="personal-links-list" style="margin-top:0.75rem;"></div>
           </div>
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;">
             <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.75rem;">📂 Family Documents</div>
             <input type="text" id="personal-doc-name" placeholder="Document name" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
-            <div class="upload-area" style="padding:0.75rem;" onclick="document.getElementById('personal-file-input').click()">
+            <div class="upload-area" style="padding:0.75rem;" id="upload-area-personal">
               <div style="font-size:0.82rem;color:var(--muted);"><strong style="color:var(--text);">Click to upload</strong> · PDF, Word, Excel</div>
             </div>
             <input type="file" id="personal-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" onchange="handlePersonalUpload(event)">
@@ -245,7 +245,7 @@
             <input type="text" id="personal-contact-name" placeholder="Name" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
             <input type="text" id="personal-contact-phone" placeholder="Phone" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
             <input type="text" id="personal-contact-note" placeholder="Note (e.g. Doctor, Insurance)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;color:var(--text);font-size:0.83rem;margin-bottom:0.4rem;box-sizing:border-box;">
-            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" onclick="savePersonalContact()">Add Contact</button>
+            <button class="btn-add" style="margin-top:0.2rem;width:100%;padding:0.5rem;" id="btn-save-personal-contact">Add Contact</button>
             <div id="personal-contacts-list" style="margin-top:0.75rem;"></div>
           </div>
         </div>
@@ -271,8 +271,8 @@
       <div id="family-pin-error" style="color:#f87171;font-size:0.8rem;margin-top:0.5rem;min-height:1em;text-align:center;"></div>
     </div>
     <div style="display:flex;gap:0.75rem;">
-      <button class="btn-sm" style="flex:1;padding:0.55rem;" onclick="document.getElementById('family-pin-modal').classList.remove('open')">Cancel</button>
-      <button class="btn-add" style="flex:2;padding:0.55rem;" onclick="submitFamilyPin()">Unlock</button>
+      <button class="btn-sm" style="flex:1;padding:0.55rem;" id="btn-cancel-family-pin">Cancel</button>
+      <button class="btn-add" style="flex:2;padding:0.55rem;" id="btn-submit-family-pin">Unlock</button>
     </div>
   </div>
 </div>
@@ -283,12 +283,12 @@
     <div class="modal-header" style="margin-bottom:1.5rem;">
       <div class="modal-title" id="perm-modal-title">Edit Permissions</div>
       <div class="modal-sub" id="perm-modal-sub">Toggle business access and choose what they can see.</div>
-      <button class="modal-close" onclick="closePermModal()"></button>
+      <button class="modal-close" id="btn-close-perm-modal-x"></button>
     </div>
     <div id="perm-biz-list"></div>
     <div class="modal-footer">
-      <button class="btn-sm" onclick="closePermModal()">Cancel</button>
-      <button class="btn-add" style="height:auto;padding:0.6rem 1.5rem;" onclick="savePerms()">Save Permissions</button>
+      <button class="btn-sm" id="btn-close-perm-modal-cancel">Cancel</button>
+      <button class="btn-add" style="height:auto;padding:0.6rem 1.5rem;" id="btn-save-perms">Save Permissions</button>
     </div>
   </div>
 </div>
@@ -300,7 +300,7 @@
     <div class="topbar-right">
       <div class="avatar user-av" id="user-avatar-top">U</div>
       <div style="font-size:0.85rem;font-weight:600;" id="user-name-top">User</div>
-      <button class="btn-sm" onclick="doLogout()">Log out</button>
+      <button class="btn-sm" class="btn-logout">Log out</button>
     </div>
   </nav>
   <div class="user-content">
@@ -316,7 +316,7 @@
 <div class="pdf-modal" id="pdf-modal">
   <div class="pdf-modal-header">
     <div class="pdf-modal-title" id="pdf-modal-title">Document</div>
-    <button class="pdf-modal-close" onclick="closePDFModal()"> Close</button>
+    <button class="pdf-modal-close" id="btn-close-pdf-modal"> Close</button>
   </div>
   <div class="pdf-modal-body">
     <iframe id="pdf-iframe" src="" allowfullscreen></iframe>
@@ -337,5 +337,37 @@
 <script src="js/dashboard.js"></script>
 <script src="js/documents.js"></script>
 
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+      function onAll(cls, fn) { document.querySelectorAll('.' + cls).forEach(function(el){ el.addEventListener('click', fn); }); }
+      on('btn-login', doLogin);
+      on('btn-confirm-totp', confirmTOTPSetup);
+      on('btn-verify-2fa', verify2FA);
+      on('btn-back-to-login', backToLogin);
+      on('btn-complete-invite', completeInvite);
+      on('btn-view-as-admin', viewAsAdmin);
+      onAll('btn-logout', doLogout);
+      on('tab-btn-users', function(){ switchTab('users'); });
+      on('tab-btn-businesses', function(){ switchTab('businesses'); });
+      on('tab-btn-content', function(){ switchTab('content'); });
+      on('tab-btn-documents', function(){ switchTab('documents'); });
+      on('tab-btn-personal', function(){ switchTab('personal'); });
+      on('btn-invite-user', inviteUser);
+      on('upload-area-doc', function(){ document.getElementById('doc-file-input').click(); });
+      on('upload-area-personal', function(){ document.getElementById('personal-file-input').click(); });
+      on('btn-admin-set-family-pin', adminSetFamilyPin);
+      on('btn-save-personal-note', savePersonalNote);
+      on('btn-save-personal-link', savePersonalLink);
+      on('btn-save-personal-contact', savePersonalContact);
+      on('btn-cancel-family-pin', function(){ document.getElementById('family-pin-modal').classList.remove('open'); });
+      on('btn-submit-family-pin', submitFamilyPin);
+      on('btn-close-perm-modal-x', closePermModal);
+      on('btn-close-perm-modal-cancel', closePermModal);
+      on('btn-save-perms', savePerms);
+      on('btn-close-pdf-modal', closePDFModal);
+    });
+  </script>
 </body>
 </html>
