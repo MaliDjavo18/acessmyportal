@@ -316,10 +316,14 @@
 <div class="pdf-modal" id="pdf-modal">
   <div class="pdf-modal-header">
     <div class="pdf-modal-title" id="pdf-modal-title">Document</div>
-    <button class="pdf-modal-close" id="btn-close-pdf-modal"> Close</button>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <button class="btn-icon" id="pdf-download-btn" style="display:none;align-items:center;gap:0.35rem;font-size:0.82rem;">⬇ Download</button>
+      <button class="pdf-modal-close" id="btn-close-pdf-modal">✕ Close</button>
+    </div>
   </div>
-  <div class="pdf-modal-body">
+  <div class="pdf-modal-body" style="position:relative;">
     <iframe id="pdf-iframe" src="" allowfullscreen></iframe>
+    <div id="pdf-watermark" style="display:none;position:absolute;bottom:1.5rem;right:1.5rem;background:rgba(0,0,0,0.45);color:#fff;font-size:0.72rem;font-weight:600;padding:0.35rem 0.7rem;border-radius:6px;pointer-events:none;letter-spacing:0.03em;z-index:10;backdrop-filter:blur(2px);"></div>
   </div>
 </div>
 
