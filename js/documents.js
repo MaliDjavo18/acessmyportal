@@ -2,10 +2,10 @@ let allDocs = [];
 let activeDocsBiz = 'biz1';
 
 function getFileIcon(fileType) {
-  if (fileType.includes('pdf')) return { icon: '', cls: 'pdf' };
-  if (fileType.includes('sheet') || fileType.includes('excel') || fileType.includes('xlsx') || fileType.includes('xls')) return { icon: '', cls: 'excel' };
-  if (fileType.includes('word') || fileType.includes('doc')) return { icon: '', cls: 'word' };
-  return { icon: '', cls: 'pdf' };
+  if (fileType.includes('pdf')) return { icon: '📄', cls: 'pdf' };
+  if (fileType.includes('sheet') || fileType.includes('excel') || fileType.includes('xlsx') || fileType.includes('xls')) return { icon: '📊', cls: 'excel' };
+  if (fileType.includes('word') || fileType.includes('doc')) return { icon: '📝', cls: 'word' };
+  return { icon: '📄', cls: 'pdf' };
 }
 
 async function handleFileUpload(event) {
@@ -25,7 +25,7 @@ async function handleFileUpload(event) {
     if (!uploadRes.ok) throw new Error('Upload failed');
     await sbFetch('documents', {
       method: 'POST',
-      body: JSON.stringify({ name, description: desc, business_id: bizId, file_path: filePath, file_type: file.type })
+      body: JSON.stringify({ name, description: desc, business_id: bizId, file_path: filePath, file_type: file.type, can_download: false })
     });
     document.getElementById('upload-doc-name').value = '';
     document.getElementById('upload-doc-desc').value = '';
@@ -74,15 +74,34 @@ function renderAdminDocs() {
   container.innerHTML = filtered.map(doc => {
     const { icon } = getFileIcon(doc.file_type);
     const date = new Date(doc.uploaded_at).toLocaleDateString();
+    const canDl = doc.can_download;
     return `<div class="admin-doc-item">
       <div style="font-size:1.5rem;">${icon}</div>
       <div class="admin-doc-info">
         <div class="admin-doc-name">${doc.name}</div>
         <div class="admin-doc-meta">${doc.description || ''}  ${date}</div>
       </div>
-      <button class="btn-icon danger" onclick="deleteDoc('${doc.id}', '${doc.file_path}')"> Delete</button>
+      <label class="toggle" title="Allow users to download this file" style="margin-right:0.5rem;">
+        <input type="checkbox" ${canDl ? 'checked' : ''} onchange="toggleDocDownload('${doc.id}', this.checked)">
+        <span class="slider"></span>
+      </label>
+      <span style="font-size:0.72rem;color:var(--muted);margin-right:0.75rem;">${canDl ? 'Download On' : 'No Download'}</span>
+      <button class="btn-icon danger" onclick="deleteDoc('${doc.id}', '${doc.file_path}')">Delete</button>
     </div>`;
   }).join('');
+}
+
+async function toggleDocDownload(docId, allowed) {
+  try {
+    await sbFetch(`documents?id=eq.${docId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ can_download: allowed })
+    });
+    const doc = allDocs.find(d => d.id == docId);
+    if (doc) doc.can_download = allowed;
+    renderAdminDocs();
+    showToast(allowed ? 'Download enabled' : 'Download disabled', allowed ? 'green' : 'red');
+  } catch(e) { showToast('Error updating download setting', 'red'); }
 }
 
 async function deleteDoc(docId, filePath) {
@@ -110,23 +129,47 @@ async function getDocURL(filePath) {
   } catch(e) { return null; }
 }
 
-function openPDFModal(url, name) {
+function openPDFModal(url, name, canDownload) {
   document.getElementById('pdf-modal-title').textContent = name;
   document.getElementById('pdf-iframe').src = url;
   document.getElementById('pdf-modal').classList.add('open');
+  const wm = document.getElementById('pdf-watermark');
+  if (wm) {
+    const user = (typeof currentUser !== 'undefined' && currentUser.data) ? currentUser.data.displayName : '';
+    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    wm.textContent = user ? `${user} • ${date}` : date;
+    wm.style.display = 'block';
+  }
+  const dlBtn = document.getElementById('pdf-download-btn');
+  if (dlBtn) {
+    if (canDownload) {
+      dlBtn.style.display = 'inline-flex';
+      dlBtn.onclick = function() {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.target = '_blank';
+        a.click();
+      };
+    } else {
+      dlBtn.style.display = 'none';
+    }
+  }
 }
 
 function closePDFModal() {
   document.getElementById('pdf-modal').classList.remove('open');
   document.getElementById('pdf-iframe').src = '';
+  const wm = document.getElementById('pdf-watermark');
+  if (wm) wm.style.display = 'none';
 }
 
 async function renderUserDocs(bizId) {
   const sectionsEl = document.getElementById('user-sections');
   const biz = BUSINESSES.find(b => b.id === bizId);
-  sectionsEl.innerHTML = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'"> Back to Businesses</button>
+  sectionsEl.innerHTML = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">Back to Businesses</button>
   <div class="u-card">
-    <div class="u-card-title"> Documents  ${biz.name}</div>
+    <div class="u-card-title">Documents  ${biz.name}</div>
     <div id="user-docs-loading" style="text-align:center;color:var(--muted);padding:2rem;">Loading documents...</div>
     <div class="docs-grid" id="user-docs-grid" style="display:none;"></div>
   </div>`;
@@ -142,11 +185,12 @@ async function renderUserDocs(bizId) {
     document.getElementById('user-docs-grid').innerHTML = docs.map(doc => {
       const { icon, cls } = getFileIcon(doc.file_type);
       const date = new Date(doc.uploaded_at).toLocaleDateString();
-      return `<div class="doc-card" onclick="openUserDoc('${doc.file_path}', '${doc.name}', '${doc.file_type}')">
+      return `<div class="doc-card" onclick="openUserDoc('${doc.file_path}', '${doc.name}', '${doc.file_type}', ${doc.can_download ? 'true' : 'false'})">
         <div class="doc-card-icon ${cls}">${icon}</div>
         <div class="doc-card-name">${doc.name}</div>
         ${doc.description ? `<div class="doc-card-desc">${doc.description}</div>` : ''}
-        <div class="doc-card-date"> ${date}</div>
+        <div class="doc-card-date">${date}</div>
+        ${doc.can_download ? '<div style="font-size:0.7rem;color:var(--success,#22c55e);margin-top:0.2rem;">Download available</div>' : ''}
       </div>`;
     }).join('');
   } catch(e) {
@@ -154,12 +198,12 @@ async function renderUserDocs(bizId) {
   }
 }
 
-async function openUserDoc(filePath, name, fileType) {
+async function openUserDoc(filePath, name, fileType, canDownload) {
   const url = await getDocURL(filePath);
   if (!url) { showToast('Could not open document', 'red'); return; }
   if (fileType.includes('pdf')) {
-    openPDFModal(url, name);
+    openPDFModal(url, name, canDownload);
   } else {
-    openPDFModal(`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`, name);
+    openPDFModal(`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`, name, canDownload);
   }
 }
