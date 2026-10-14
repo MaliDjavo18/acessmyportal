@@ -82,17 +82,20 @@ function renderCompanyCards() {
   </div>`;
 }
 
-function openPersonalView() {
+async function openPersonalView() {
   const sectionsEl = document.getElementById('user-sections');
-  document.getElementById('user-sub-text').textContent = '&#127969; Mamic Family';
-  const data = (typeof getPersonalDataForUser === 'function') ? getPersonalDataForUser() : { notes: [], links: [], contacts: [], docs: [] };
+  document.getElementById('user-sub-text').textContent = '🏡 Mamic Family';
+  sectionsEl.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted);">Loading family data…</div>`;
+  const data = (typeof getPersonalDataForUser === 'function') ? await getPersonalDataForUser() : { notes: [], links: [], contacts: [], docs: [] };
   const backBtn = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">← Back</button>`;
 
-  const notesHtml = data.notes.length ? data.notes.map(n => `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;margin-bottom:0.4rem;">
+  const notesHtml = data.notes.length ? data.notes.map(n => {
+    const date = n.created_at ? new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : (n.date || '');
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;margin-bottom:0.4rem;">
       <div style="font-size:0.83rem;white-space:pre-wrap;">${n.text}</div>
-      <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">${n.date}</div>
-    </div>`).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No notes shared yet.</div>';
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">${date}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No notes shared yet.</div>';
 
   const linksHtml = data.links.length ? data.links.map(l => `
     <a href="${l.url}" target="_blank" style="display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;margin-bottom:0.4rem;color:var(--accent);font-size:0.83rem;font-weight:600;text-decoration:none;">${l.label}</a>`).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No links shared yet.</div>';
@@ -104,14 +107,16 @@ function openPersonalView() {
       ${c.note ? '<div style="font-size:0.74rem;color:var(--muted);">' + c.note + '</div>' : ''}
     </div>`).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No contacts shared yet.</div>';
 
-  const docsHtml = data.docs.length ? data.docs.map(d => `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;">
+  const docsHtml = data.docs.length ? data.docs.map(d => {
+    const date = d.created_at ? new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : (d.date || '');
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:0.83rem;font-weight:600;">&#128196; ${d.name}</div>
-        <div style="font-size:0.73rem;color:var(--muted);">${d.date}</div>
+        <div style="font-size:0.83rem;font-weight:600;">📄 ${d.name}</div>
+        <div style="font-size:0.73rem;color:var(--muted);">${date}</div>
       </div>
-      <a href="${d.url}" target="_blank" style="font-size:0.8rem;color:var(--accent);text-decoration:none;font-weight:600;">View</a>
-    </div>`).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No documents shared yet.</div>';
+      <button onclick="openPersonalDoc('${d.file_path}','${d.name}')" style="font-size:0.8rem;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600;">View</button>
+    </div>`;
+  }).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No documents shared yet.</div>';
 
   sectionsEl.innerHTML = backBtn + `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
