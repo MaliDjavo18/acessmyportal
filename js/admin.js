@@ -2,7 +2,7 @@ h// v2
 // 
 // SCREEN SWITCHING
 // 
-function showScreen(id) {
+function showScreen(id) {h
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
@@ -142,13 +142,10 @@ function renderUserTable() {
       </td>
     </tr>`;
   }).join('');
-  container.innerHTML = bizRows;
+
 }
 
 function isStrongPassword(pwd) {
-  return pwd.length >= 8 &&
-    /[A-Z]/.test(pwd) &&
-    /[0-9]/.test(pwd) &&
     /[^A-Za-z0-9]/.test(pwd);
 }
 
