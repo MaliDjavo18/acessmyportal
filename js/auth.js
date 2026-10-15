@@ -191,9 +191,40 @@ function backToLogin() {
   document.getElementById('twofa-code').value = '';
   document.getElementById('twofa-error').classList.remove('show');
 }
+// Cache autofill values â Chrome autofill doesn't commit .value until user interaction
+let _cachedUser = '', _cachedPass = '';
+(function() {
+  function attachCacheListeners() {
+    const uf = document.getElementById('login-user');
+    const pf = document.getElementById('login-pass');
+    if (uf) {
+      uf.addEventListener('input', function() { _cachedUser = uf.value; });
+      uf.addEventListener('change', function() { _cachedUser = uf.value; });
+      // Detect autofill via animationstart (CSS animation triggered on :-webkit-autofill)
+      uf.addEventListener('animationstart', function() { setTimeout(function(){ _cachedUser = uf.value; }, 50); });
+    }
+    if (pf) {
+      pf.addEventListener('input', function() { _cachedPass = pf.value; });
+      pf.addEventListener('change', function() { _cachedPass = pf.value; });
+      pf.addEventListener('animationstart', function() { setTimeout(function(){ _cachedPass = pf.value; }, 50); });
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachCacheListeners);
+  } else {
+    attachCacheListeners();
+  }
+})();
+
 async function doLogin() {
-  const u = document.getElementById('login-user').value.trim().toLowerCase();
-  const p = document.getElementById('login-pass').value;
+  // Read .value; fall back to cached value if autofill hasn't committed it yet
+  const uf = document.getElementById('login-user');
+  const pf = document.getElementById('login-pass');
+  // Force a value read â autofill sometimes commits on focus
+  if (uf) uf.dispatchEvent(new Event('change', { bubbles: true }));
+  if (pf) pf.dispatchEvent(new Event('change', { bubbles: true }));
+  const u = ((uf ? uf.value : '') || _cachedUser).trim().toLowerCase();
+  const p = (pf ? pf.value : '') || _cachedPass;
   const err = document.getElementById('login-error');
   const btn = document.querySelector('.btn-primary');
   err.classList.remove('show');
@@ -227,7 +258,7 @@ async function doLogin() {
     const user = users.length > 0 ? users[0] : null;
 
     if (user) {
-      // Admin role — skip TOTP, go straight to admin screen
+      // Admin role â skip TOTP, go straight to admin screen
       if (user.role === 'admin') {
         currentUser = { role: 'admin' };
         btn.textContent = 'Loading...';
