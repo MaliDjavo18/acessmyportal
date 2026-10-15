@@ -1,12 +1,12 @@
-h// v2 
+// v2 
 // 
 // SCREEN SWITCHING
 // 
-function showScreen(id) {h
+function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
-}
+
 
 // 
 // ADMIN RENDER
