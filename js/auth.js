@@ -174,12 +174,18 @@ async function verify2FA() {
     return;
   }
 
-  // Code correct  complete login
-  currentUser = { role: 'user', data: pendingLoginUser };
+  // Code correct — complete login based on role
+  currentUser = { role: pendingLoginUser.role, data: pendingLoginUser };
   await resetAttempts(pendingLoginUser.id);
   resetSessionTimer();
-  showScreen('user-screen');
-  renderUserDash();
+  if (pendingLoginUser.role === 'admin') {
+    await loadUsers();
+    showScreen('admin-screen');
+    renderAdmin();
+  } else {
+    showScreen('user-screen');
+    renderUserDash();
+  }
 }
 
 function backToLogin() {
