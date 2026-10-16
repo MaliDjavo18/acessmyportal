@@ -51,7 +51,7 @@ function renderDocsBizFilter() {
   const filterRow = document.getElementById('docs-biz-filter');
   if (!filterRow) return;
   filterRow.innerHTML = BUSINESSES.map(b =>
-    `<button class="biz-filter-btn ${b.id === activeDocsBiz ? 'active' : ''}" onclick="setActiveDocsBiz('${b.id}')">${b.icon} ${b.name}</button>`
+    `<button class="biz-filter-btn ${b.id === activeDocsBiz ? 'active' : ''}" data-click="setActiveDocsBiz('${b.id}')">${b.icon} ${b.name}</button>`
   ).join('');
 }
 
@@ -82,11 +82,11 @@ function renderAdminDocs() {
         <div class="admin-doc-meta">${doc.description || ''}  ${date}</div>
       </div>
       <label class="toggle" title="Allow users to download this file" style="margin-right:0.5rem;">
-        <input type="checkbox" ${canDl ? 'checked' : ''} onchange="toggleDocDownload('${doc.id}', this.checked)">
+        <input type="checkbox" ${canDl ? 'checked' : ''} data-change="toggleDocDownload('${doc.id}', this.checked)">
         <span class="slider"></span>
       </label>
       <span style="font-size:0.72rem;color:var(--muted);margin-right:0.75rem;">${canDl ? 'Download On' : 'No Download'}</span>
-      <button class="btn-icon danger" onclick="deleteDoc('${doc.id}', '${doc.file_path}')">Delete</button>
+      <button class="btn-icon danger" data-click="deleteDoc('${doc.id}', '${doc.file_path}')">Delete</button>
     </div>`;
   }).join('');
 }
@@ -167,7 +167,7 @@ function closePDFModal() {
 async function renderUserDocs(bizId) {
   const sectionsEl = document.getElementById('user-sections');
   const biz = BUSINESSES.find(b => b.id === bizId);
-  sectionsEl.innerHTML = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">Back to Businesses</button>
+  sectionsEl.innerHTML = `<button class="back-btn" data-click="backToBusinesses()">Back to Businesses</button>
   <div class="u-card">
     <div class="u-card-title">Documents  ${biz.name}</div>
     <div id="user-docs-loading" style="text-align:center;color:var(--muted);padding:2rem;">Loading documents...</div>
@@ -185,7 +185,7 @@ async function renderUserDocs(bizId) {
     document.getElementById('user-docs-grid').innerHTML = docs.map(doc => {
       const { icon, cls } = getFileIcon(doc.file_type);
       const date = new Date(doc.uploaded_at).toLocaleDateString();
-      return `<div class="doc-card" onclick="openUserDoc('${doc.file_path}', '${doc.name}', '${doc.file_type}', ${doc.can_download ? 'true' : 'false'})">
+      return `<div class="doc-card" data-click="openUserDoc('${doc.file_path}', '${doc.name}', '${doc.file_type}', ${doc.can_download ? 'true' : 'false'})">
         <div class="doc-card-icon ${cls}">${icon}</div>
         <div class="doc-card-name">${doc.name}</div>
         ${doc.description ? `<div class="doc-card-desc">${doc.description}</div>` : ''}
