@@ -35,7 +35,14 @@ function renderAdmin() {
   });
 }
 
+let familyPinVerified = false;
+
 function switchTab(name) {
+  if (name === 'personal' && !familyPinVerified) {
+    window.afterFamilyPin = function () { switchTab('personal'); };
+    showFamilyPinModal();
+    return;
+  }
   document.querySelectorAll('.tab').forEach((t, i) => {
     const names = ['users','businesses','content','documents','personal'];
     t.classList.toggle('active', names[i] === name);
@@ -87,14 +94,17 @@ async function submitFamilyPin() {
     if (result === true) {
       familyPinVerified = true;
       document.getElementById('family-pin-modal').classList.remove('open');
-      switchTab('personal');
+      const next = window.afterFamilyPin || function () { switchTab('personal'); };
+      window.afterFamilyPin = null;
+      next();
     } else {
       errEl.textContent = 'Incorrect PIN. Try again.';
       document.getElementById('family-pin-input').value = '';
       document.getElementById('family-pin-input').focus();
     }
   } catch(e) {
-    errEl.textContent = 'Error verifying PIN. Try again.';
+    console.error('check_family_pin failed:', e);
+    errEl.textContent = 'Error verifying PIN: ' + ((e && e.message) || e);
   }
 }
 
@@ -114,7 +124,8 @@ async function adminSetFamilyPin() {
     errEl.textContent = '';
     showToast('Family PIN updated', 'green');
   } catch(e) {
-    errEl.textContent = 'Failed to set PIN. Try again.';
+    console.error('set_family_pin failed:', e);
+    errEl.textContent = 'Failed to set PIN: ' + ((e && e.message) || e);
   }
 }
 
