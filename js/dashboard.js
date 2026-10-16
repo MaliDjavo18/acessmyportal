@@ -299,15 +299,15 @@ function renderMoodShineDashboard() {
 
   container.innerHTML = `
     <div style="display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.25rem;">
-      <button class="dash-tab-btn active" id="dash-tab-daily" onclick="switchDashTab('daily')" style="flex:1;padding:0.5rem;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">Daily Revenue</button>
-      <button class="dash-tab-btn" id="dash-tab-monthly" onclick="switchDashTab('monthly')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;">Monthly Overview</button>
+      <button class="dash-tab-btn active" id="dash-tab-daily" data-click="switchDashTab('daily')" style="flex:1;padding:0.5rem;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">Daily Revenue</button>
+      <button class="dash-tab-btn" id="dash-tab-monthly" data-click="switchDashTab('monthly')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;">Monthly Overview</button>
     </div>
     <div id="daily-panel">
       <div class="sheets-controls">
-        <select class="sheets-select" id="year-select" onchange="onYearChange()">
+        <select class="sheets-select" id="year-select" data-change="onYearChange()">
           ${Object.keys(SHEET_YEARS).map(y => `<option value="${y}" ${y === defaultYear ? 'selected' : ''}>${y}</option>`).join('')}
         </select>
-        <select class="sheets-select" id="month-select" onchange="loadSheetMonth(this.value)">
+        <select class="sheets-select" id="month-select" data-change="loadSheetMonth(this.value)">
           ${defaultMonths.map(m => `<option value="${m}" ${m === defaultMonth ? 'selected' : ''}>${m.split(' ')[0]}</option>`).join('')}
         </select>
         <div class="sheets-loading" id="sheets-loading" style="display:none;">Loading data...</div>
