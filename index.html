@@ -343,7 +343,7 @@
 
 
   <script>
-    (function () {
+    window.addEventListener('load', function () {
       function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
       function onAll(cls, fn) { document.querySelectorAll('.' + cls).forEach(function(el){ el.addEventListener('click', fn); }); }
       on('btn-login', doLogin);
@@ -371,7 +371,7 @@
       on('btn-close-perm-modal-cancel', closePermModal);
       on('btn-save-perms', savePerms);
       on('btn-close-pdf-modal', closePDFModal);
-    })();
+    });
   </script>
 </body>
 </html>
