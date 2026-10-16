@@ -271,8 +271,8 @@
       <div id="family-pin-error" style="color:#f87171;font-size:0.8rem;margin-top:0.5rem;min-height:1em;text-align:center;"></div>
     </div>
     <div style="display:flex;gap:0.75rem;">
-      <button class="btn-sm" style="flex:1;padding:0.55rem;" id="btn-cancel-family-pin">Cancel</button>
-      <button class="btn-add" style="flex:2;padding:0.55rem;" id="btn-submit-family-pin">Unlock</button>
+      <button class="btn-sm" style="flex:1;padding:0.55rem;" id="btn-cancel-family-pin" onclick="document.getElementById('family-pin-modal').classList.remove('open')">Cancel</button>
+      <button class="btn-add" style="flex:2;padding:0.55rem;" id="btn-submit-family-pin" onclick="submitFamilyPin()">Unlock</button>
     </div>
   </div>
 </div>
