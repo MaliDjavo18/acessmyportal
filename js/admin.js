@@ -35,13 +35,7 @@ function renderAdmin() {
   });
 }
 
-let familyPinVerified = false;
-
 function switchTab(name) {
-  if (name === 'personal' && !familyPinVerified) {
-    showFamilyPinModal();
-    return;
-  }
   document.querySelectorAll('.tab').forEach((t, i) => {
     const names = ['users','businesses','content','documents','personal'];
     t.classList.toggle('active', names[i] === name);
