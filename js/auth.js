@@ -520,7 +520,8 @@ async function completeInvite() {
     showScreen('login-screen');
     showToast('Account created! You can now log in.', 'green');
   } catch(e) {
-    err.textContent = 'Error creating account. Username may already exist.';
+    console.error('create_invited_user failed:', e);
+    err.textContent = 'Error creating account: ' + ((e && e.message) || e);
     err.classList.add('show');
   }
 }
