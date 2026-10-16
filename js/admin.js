@@ -16,6 +16,23 @@ function renderAdmin() {
   renderUserTable();
   renderBizGrid();
   renderContentTab();
+  // Re-attach tab click listeners after login
+  var tabMap = {
+    'tab-btn-users': 'users',
+    'tab-btn-businesses': 'businesses',
+    'tab-btn-content': 'content',
+    'tab-btn-documents': 'documents',
+    'tab-btn-personal': 'personal'
+  };
+  Object.keys(tabMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      var clone = el.cloneNode(true);
+      el.parentNode.replaceChild(clone, el);
+      var name = tabMap[id];
+      clone.addEventListener('click', function() { switchTab(name); });
+    }
+  });
 }
 
 let familyPinVerified = false;
