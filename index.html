@@ -38,7 +38,7 @@
         </div>
         <p class="error-msg" id="login-error">Incorrect username or password.</p>
       </div>
-      <button class="btn-primary" id="btn-login" onclick="doLogin()">Sign In</button>
+      <button class="btn-primary" id="btn-login">Sign In</button>
     </div>
     <div id="login-step3" style="display:none;">
       <p class="login-subtitle">Set up your authenticator app to secure your account.</p>
@@ -236,7 +236,7 @@
             <div class="upload-area" style="padding:0.75rem;" id="upload-area-personal">
               <div style="font-size:0.82rem;color:var(--muted);"><strong style="color:var(--text);">Click to upload</strong> · PDF, Word, Excel</div>
             </div>
-            <input type="file" id="personal-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" onchange="handlePersonalUpload(event)">
+            <input type="file" id="personal-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" data-change="handlePersonalUpload(event)">
             <div id="personal-upload-progress" style="display:none;font-size:0.82rem;color:var(--muted);padding:0.5rem 0;">Uploading...</div>
             <div id="personal-docs-list" style="margin-top:0.75rem;"></div>
           </div>
@@ -266,8 +266,7 @@
     </div>
     <div style="margin-bottom:1rem;">
       <input type="password" id="family-pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="Enter PIN" autocomplete="off"
-        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.65rem 0.85rem;color:var(--text);font-size:1.1rem;letter-spacing:0.2em;text-align:center;box-sizing:border-box;"
-        onkeydown="if(event.key==='Enter')submitFamilyPin()">
+        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.65rem 0.85rem;color:var(--text);font-size:1.1rem;letter-spacing:0.2em;text-align:center;box-sizing:border-box;">
       <div id="family-pin-error" style="color:#f87171;font-size:0.8rem;margin-top:0.5rem;min-height:1em;text-align:center;"></div>
     </div>
     <div style="display:flex;gap:0.75rem;">
@@ -328,7 +327,7 @@
 </div>
 
 <!-- Hidden file input -->
-<input type="file" id="doc-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" onchange="handleFileUpload(event)">
+<input type="file" id="doc-file-input" accept=".pdf,.xlsx,.xls,.docx,.doc" style="display:none;" data-change="handleFileUpload(event)">
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -336,12 +335,12 @@
 <!-- JAVASCRIPT FILES -->
 <script src="js/config.js"></script>
 <script src="js/auth.js?v=5"></script>
-<script src="js/admin.js?v=5"></script>
-<script src="js/user.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/documents.js"></script>
+<script src="js/admin.js?v=6"></script>
+<script src="js/user.js?v=2"></script>
+<script src="js/dashboard.js?v=2"></script>
+<script src="js/documents.js?v=2"></script>
 
 
-<script src="js/wire.js?v=1"></script>
+<script src="js/wire.js?v=2"></script>
 </body>
 </html>
