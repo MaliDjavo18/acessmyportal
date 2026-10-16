@@ -258,19 +258,7 @@ async function doLogin() {
     const user = users.length > 0 ? users[0] : null;
 
     if (user) {
-      // Admin role â skip TOTP, go straight to admin screen
-      if (user.role === 'admin') {
-        currentUser = { role: 'admin' };
-        btn.textContent = 'Loading...';
-        await loadUsers();
-        btn.textContent = 'Sign In ';
-        await resetAttempts(lockStatus.userId || user.id);
-        resetSessionTimer();
-        showScreen('admin-screen');
-        renderAdmin();
-        return;
-      }
-
+      
       // Load permissions for regular users
       const permResponse = await fetch(`${SUPABASE_URL}/rest/v1/permissions?user_id=eq.${user.id}&select=*`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
