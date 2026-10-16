@@ -147,9 +147,9 @@ function renderUserTable() {
       <td>${grantedBizIds.length > 0 ? bizBadges : '<span style="color:var(--muted);font-size:0.8rem;">No access granted</span>'}</td>
       <td>
         <div class="actions-row">
-          <button class="btn-icon" onclick="openPermModal(${idx})">Permissions</button>
-          <button class="btn-icon" onclick="previewAsUser(${idx})">Preview</button>
-          <button class="btn-icon danger" onclick="deleteUser(${idx})">Remove</button>
+          <button class="btn-icon" data-click="openPermModal(${idx})">Permissions</button>
+          <button class="btn-icon" data-click="previewAsUser(${idx})">Preview</button>
+          <button class="btn-icon danger" data-click="deleteUser(${idx})">Remove</button>
         </div>
       </td>
     </tr>`;
@@ -238,15 +238,15 @@ function renderPermBizList() {
         <div class="perm-biz-name">${b.icon} ${b.name} <span style="font-size:0.72rem;color:var(--muted);">${b.industry}</span></div>
         <label class="toggle-wrap">
           <label class="toggle">
-            <input type="checkbox" id="perm-access-${b.id}" ${p.access ? 'checked' : ''} onchange="onAccessToggle('${b.id}')">
+            <input type="checkbox" id="perm-access-${b.id}" ${p.access ? 'checked' : ''} data-change="onAccessToggle('${b.id}')">
             <span class="slider"></span>
           </label>
           <span class="perm-biz-access-label ${p.access ? 'on' : 'off'}" id="perm-access-label-${b.id}">${p.access ? 'Access On' : 'No Access'}</span>
         </label>
       </div>
       <div class="perm-checks" id="perm-checks-${b.id}" style="${p.access ? '' : 'opacity:0.3;pointer-events:none;'}">
-        <label class="perm-check"><input type="checkbox" id="perm-docs-${b.id}" ${p.docs && p.access ? 'checked' : ''} onchange="onContentToggle('${b.id}','docs')"> Documents</label>
-        <label class="perm-check"><input type="checkbox" id="perm-fin-${b.id}" ${p.financials && p.access ? 'checked' : ''} onchange="onContentToggle('${b.id}','financials')"> Financial Info</label>
+        <label class="perm-check"><input type="checkbox" id="perm-docs-${b.id}" ${p.docs && p.access ? 'checked' : ''} data-change="onContentToggle('${b.id}','docs')"> Documents</label>
+        <label class="perm-check"><input type="checkbox" id="perm-fin-${b.id}" ${p.financials && p.access ? 'checked' : ''} data-change="onContentToggle('${b.id}','financials')"> Financial Info</label>
       </div>
     </div>`;
   }).join('');
@@ -257,7 +257,7 @@ function renderPermBizList() {
       <div class="perm-biz-name">&#127968; Mamic Family <span style="font-size:0.72rem;color:var(--muted);">Personal</span></div>
       <label class="toggle-wrap">
         <label class="toggle">
-          <input type="checkbox" id="perm-access-personal" ${pp.access ? 'checked' : ''} onchange="onAccessToggle('personal')">
+          <input type="checkbox" id="perm-access-personal" ${pp.access ? 'checked' : ''} data-change="onAccessToggle('personal')">
           <span class="slider"></span>
         </label>
         <span class="perm-biz-access-label ${pp.access ? 'on' : 'off'}" id="perm-access-label-personal">${pp.access ? 'Access On' : 'No Access'}</span>
@@ -355,7 +355,7 @@ function renderBizGrid() {
 function renderContentTab() {
   const filterRow = document.getElementById('content-biz-filter');
   filterRow.innerHTML = BUSINESSES.map(b =>
-    `<button class="biz-filter-btn ${b.id === activeContentBiz ? 'active' : ''}" onclick="setContentBiz('${b.id}')">${b.icon} ${b.name}</button>`
+    `<button class="biz-filter-btn ${b.id === activeContentBiz ? 'active' : ''}" data-click="setContentBiz('${b.id}')">${b.icon} ${b.name}</button>`
   ).join('');
   renderContentList();
 }
@@ -408,7 +408,7 @@ function previewAsUser(idx) {
     const bar = document.createElement('div');
     bar.id = 'admin-preview-bar';
     bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#000;text-align:center;padding:0.5rem 1rem;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:1rem;';
-    bar.innerHTML = ` Admin Preview  viewing as <strong>${user.displayName}</strong> &nbsp;<button onclick="exitPreview()" style="background:#000;color:#fff;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;"> Back to Admin</button>`;
+    bar.innerHTML = ` Admin Preview  viewing as <strong>${user.displayName}</strong> &nbsp;<button data-click="exitPreview()" style="background:#000;color:#fff;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;"> Back to Admin</button>`;
     document.body.prepend(bar);
   }, 100);
 }
@@ -437,7 +437,7 @@ function viewAsAdmin() {
     const bar = document.createElement('div');
     bar.id = 'admin-preview-bar';
     bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#6366f1;color:#fff;text-align:center;padding:0.5rem 1rem;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:1rem;';
-    bar.innerHTML = '<span>Admin View  Full Access</span><button onclick="exitPreview()" style="background:#fff;color:#6366f1;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;">Back to Admin</button>';
+    bar.innerHTML = '<span>Admin View  Full Access</span><button data-click="exitPreview()" style="background:#fff;color:#6366f1;border:none;padding:0.25rem 0.75rem;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.8rem;">Back to Admin</button>';
     document.body.prepend(bar);
   }, 100);
 }
@@ -450,10 +450,10 @@ const PERSONAL_STORAGE_KEY = 'mamic_family_data';
 function getPersonalData() { try { return JSON.parse(localStorage.getItem(PERSONAL_STORAGE_KEY)) || { notes:[], links:[], contacts:[], docs:[] }; } catch(e) { return { notes:[], links:[], contacts:[], docs:[] }; } }
 function setPersonalData(data) { try { localStorage.setItem(PERSONAL_STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
 function loadPersonalData() { const data = getPersonalData(); renderPersonalNotes(data); renderPersonalLinks(data); renderPersonalContacts(data); renderPersonalDocs(data); }
-function renderPersonalNotes(data) { const el = document.getElementById('personal-notes-list'); if (!el) return; if (!data.notes.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No notes yet.</div>'; return; } el.innerHTML = data.notes.map((n,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;margin-bottom:0.4rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;"><div style="font-size:0.82rem;white-space:pre-wrap;">' + n.text + '</div><button onclick="deletePersonalItem(\'notes\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div><div style="color:var(--muted);font-size:0.72rem;margin-top:0.3rem;">' + n.date + '</div></div>').join(''); }
-function renderPersonalLinks(data) { const el = document.getElementById('personal-links-list'); if (!el) return; if (!data.links.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No links yet.</div>'; return; } el.innerHTML = data.links.map((l,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;"><a href="' + l.url + '" target="_blank" style="color:var(--accent);font-size:0.82rem;font-weight:600;text-decoration:none;">' + l.label + '</a><button onclick="deletePersonalItem(\'links\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div>').join(''); }
-function renderPersonalContacts(data) { const el = document.getElementById('personal-contacts-list'); if (!el) return; if (!data.contacts.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No contacts yet.</div>'; return; } el.innerHTML = data.contacts.map((c,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:0.83rem;">' + c.name + '</div><div style="font-size:0.8rem;color:var(--accent);">' + c.phone + '</div>' + (c.note ? '<div style="font-size:0.74rem;color:var(--muted);">' + c.note + '</div>' : '') + '</div><button onclick="deletePersonalItem(\'contacts\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div></div>').join(''); }
-function renderPersonalDocs(data) { const el = document.getElementById('personal-docs-list'); if (!el) return; if (!data.docs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No documents yet.</div>'; return; } el.innerHTML = data.docs.map((d,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;"><div><div style="font-size:0.83rem;font-weight:600;">D ' + d.name + '</div><div style="font-size:0.73rem;color:var(--muted);">' + d.date + '</div></div><div style="display:flex;gap:0.4rem;align-items:center;"><a href="' + d.url + '" target="_blank" style="font-size:0.75rem;color:var(--accent);text-decoration:none;">View</a><button onclick="deletePersonalItem(\'docs\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div></div>').join(''); }
+function renderPersonalNotes(data) { const el = document.getElementById('personal-notes-list'); if (!el) return; if (!data.notes.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No notes yet.</div>'; return; } el.innerHTML = data.notes.map((n,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.65rem;margin-bottom:0.4rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;"><div style="font-size:0.82rem;white-space:pre-wrap;">' + n.text + '</div><button data-click="deletePersonalItem(\'notes\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div><div style="color:var(--muted);font-size:0.72rem;margin-top:0.3rem;">' + n.date + '</div></div>').join(''); }
+function renderPersonalLinks(data) { const el = document.getElementById('personal-links-list'); if (!el) return; if (!data.links.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No links yet.</div>'; return; } el.innerHTML = data.links.map((l,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;"><a href="' + l.url + '" target="_blank" style="color:var(--accent);font-size:0.82rem;font-weight:600;text-decoration:none;">' + l.label + '</a><button data-click="deletePersonalItem(\'links\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div>').join(''); }
+function renderPersonalContacts(data) { const el = document.getElementById('personal-contacts-list'); if (!el) return; if (!data.contacts.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No contacts yet.</div>'; return; } el.innerHTML = data.contacts.map((c,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:0.83rem;">' + c.name + '</div><div style="font-size:0.8rem;color:var(--accent);">' + c.phone + '</div>' + (c.note ? '<div style="font-size:0.74rem;color:var(--muted);">' + c.note + '</div>' : '') + '</div><button data-click="deletePersonalItem(\'contacts\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div></div>').join(''); }
+function renderPersonalDocs(data) { const el = document.getElementById('personal-docs-list'); if (!el) return; if (!data.docs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;">No documents yet.</div>'; return; } el.innerHTML = data.docs.map((d,i) => '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;"><div><div style="font-size:0.83rem;font-weight:600;">D ' + d.name + '</div><div style="font-size:0.73rem;color:var(--muted);">' + d.date + '</div></div><div style="display:flex;gap:0.4rem;align-items:center;"><a href="' + d.url + '" target="_blank" style="font-size:0.75rem;color:var(--accent);text-decoration:none;">View</a><button data-click="deletePersonalItem(\'docs\',' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">X</button></div></div>').join(''); }
 function savePersonalNote() { const txt = document.getElementById('personal-notes').value.trim(); if (!txt) return; const data = getPersonalData(); data.notes.unshift({ text: txt, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) }); setPersonalData(data); document.getElementById('personal-notes').value = ''; renderPersonalNotes(data); showToast('Note saved','green'); }
 function savePersonalLink() { const label = document.getElementById('personal-link-label').value.trim(); const url = document.getElementById('personal-link-url').value.trim(); if (!label||!url) { showToast('Enter both label and URL','red'); return; } const data = getPersonalData(); data.links.push({ label:label, url:url.startsWith('http')?url:'https://'+url }); setPersonalData(data); document.getElementById('personal-link-label').value=''; document.getElementById('personal-link-url').value=''; renderPersonalLinks(data); showToast('Link added','green'); }
 function savePersonalContact() { const name = document.getElementById('personal-contact-name').value.trim(); const phone = document.getElementById('personal-contact-phone').value.trim(); const note = document.getElementById('personal-contact-note').value.trim(); if (!name||!phone) { showToast('Enter name and phone','red'); return; } const data = getPersonalData(); data.contacts.push({ name:name, phone:phone, note:note }); setPersonalData(data); document.getElementById('personal-contact-name').value=''; document.getElementById('personal-contact-phone').value=''; document.getElementById('personal-contact-note').value=''; renderPersonalContacts(data); showToast('Contact added','green'); }
