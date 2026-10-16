@@ -419,7 +419,7 @@ function showInviteLink(link, email, emailSent) {
     <div style="display:flex;gap:0.5rem;align-items:center;">
       <input id="invite-link-input" type="text" value="${link}" readonly
         style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:0.78rem;font-family:monospace;">
-      <button onclick="navigator.clipboard.writeText('${link}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000);"
+      <button id="invite-copy-btn"
         style="padding:0.4rem 0.8rem;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">Copy</button>
     </div>
     <div style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem;">Link expires in 7 days. Send it to ${email}.</div>
@@ -427,6 +427,11 @@ function showInviteLink(link, email, emailSent) {
 
   const inviteSection = document.querySelector('.invite-section') || document.getElementById('add-user-error').parentElement;
   inviteSection.appendChild(box);
+  document.getElementById('invite-copy-btn').addEventListener('click', function () {
+    navigator.clipboard.writeText(link);
+    this.textContent = 'Copied!';
+    setTimeout(() => { this.textContent = 'Copy'; }, 2000);
+  });
 }
 
 async function checkInviteToken() {
