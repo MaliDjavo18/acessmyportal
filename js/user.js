@@ -29,7 +29,7 @@ function renderCompanyCards() {
   }
 
   const personalCard = hasPersonal ? `
-    <div class="company-card" onclick="openPersonalView()" style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface3,var(--surface2)) 100%);border-color:var(--accent);">
+    <div class="company-card" data-click="openPersonalView()" style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface3,var(--surface2)) 100%);border-color:var(--accent);">
       <div class="company-card-top">
         <div class="company-card-logo" style="font-size:1.8rem;">&#127969;</div>
         <div>
@@ -60,10 +60,10 @@ function renderCompanyCards() {
       if (perms.docs) reports.push('&#128193; Documents');
       const logo = BIZ_LOGOS[bid];
 
-      return `<div class="company-card" onclick="openBizReports('${bid}')">
+      return `<div class="company-card" data-click="openBizReports('${bid}')">
         <div class="company-card-top">
           <div class="company-card-logo">
-            ${logo ? `<img src="${logo}" alt="${biz.name} logo" onerror="this.style.display='none';this.parentElement.textContent='${biz.icon}'">` : biz.icon}
+            ${logo ? `<img src="${logo}" alt="${biz.name} logo" data-fallback="${biz.icon}">` : biz.icon}
           </div>
           <div>
             <div class="company-card-name">${biz.name}</div>
@@ -87,7 +87,7 @@ async function openPersonalView() {
   document.getElementById('user-sub-text').textContent = '🏡 Mamic Family';
   sectionsEl.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted);">Loading family data…</div>`;
   const data = (typeof getPersonalDataForUser === 'function') ? await getPersonalDataForUser() : { notes: [], links: [], contacts: [], docs: [] };
-  const backBtn = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">← Back</button>`;
+  const backBtn = `<button class="back-btn" data-click="backToBusinesses()">← Back</button>`;
 
   const notesHtml = data.notes.length ? data.notes.map(n => {
     const date = n.created_at ? new Date(n.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : (n.date || '');
@@ -114,7 +114,7 @@ async function openPersonalView() {
         <div style="font-size:0.83rem;font-weight:600;">📄 ${d.name}</div>
         <div style="font-size:0.73rem;color:var(--muted);">${date}</div>
       </div>
-      <button onclick="openPersonalDoc('${d.file_path}','${d.name}')" style="font-size:0.8rem;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600;">View</button>
+      <button data-click="openPersonalDoc('${d.file_path}','${d.name}')" style="font-size:0.8rem;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600;">View</button>
     </div>`;
   }).join('') : '<div style="color:var(--muted);font-size:0.82rem;">No documents shared yet.</div>';
 
@@ -154,14 +154,14 @@ function renderBizReports(bizId) {
   const hasDocs = perms.docs;
   const hasFin = perms.financials;
 
-  const backBtn = `<button class="back-btn" onclick="renderCompanyCards();document.getElementById('user-sub-text').textContent='Select a business to view your reports.'">← Back to Businesses</button>`;
+  const backBtn = `<button class="back-btn" data-click="backToBusinesses()">← Back to Businesses</button>`;
 
   if (bizId === MOOD_SHINE_BIZ_ID && hasFin && hasDocs) {
     sectionsEl.innerHTML = backBtn;
     sectionsEl.innerHTML += `
       <div style="display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.25rem;">
-        <button class="dash-tab-btn active" id="biz-tab-reports" onclick="showBizTab('reports','${bizId}')" style="flex:1;padding:0.5rem;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">&#128202; Reports</button>
-        <button class="dash-tab-btn" id="biz-tab-docs" onclick="showBizTab('docs','${bizId}')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;">&#128193; Documents</button>
+        <button class="dash-tab-btn active" id="biz-tab-reports" data-click="showBizTab('reports','${bizId}')" style="flex:1;padding:0.5rem;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">&#128202; Reports</button>
+        <button class="dash-tab-btn" id="biz-tab-docs" data-click="showBizTab('docs','${bizId}')" style="flex:1;padding:0.5rem;background:transparent;border:none;border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;">&#128193; Documents</button>
       </div>
       <div id="biz-reports-panel"><div id="mood-shine-dash"></div></div>
       <div id="biz-docs-panel" style="display:none;"></div>`;
@@ -183,7 +183,7 @@ function renderBizReports(bizId) {
 
   sectionsEl.innerHTML = backBtn + `<div class="user-grid">
     ${hasDocs ? `
-      <div class="u-card" style="cursor:pointer;" onclick="renderUserDocs('${bizId}')">
+      <div class="u-card" style="cursor:pointer;" data-click="renderUserDocs('${bizId}')">
         <div class="u-card-title">&#128193; Documents</div>
         <div style="color:var(--muted);font-size:0.85rem;">Click to view documents</div>
       </div>` : `
