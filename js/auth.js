@@ -400,7 +400,8 @@ async function inviteUser() {
     showInviteLink(inviteLink, e, emailSent);
 
   } catch(ex) {
-    showError(err, 'Error creating invitation. Please try again.');
+    console.error('create_invitation failed:', ex);
+    showError(err, 'Error creating invitation: ' + ((ex && ex.message) || ex));
   }
 }
 
