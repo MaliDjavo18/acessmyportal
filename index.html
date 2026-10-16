@@ -128,7 +128,7 @@
     <div class="topbar-right">
       <div class="topbar-pill"><div class="pill-dot admin"></div>Admin Panel</div>
       <div class="avatar admin-av">A</div>
-      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" id="btn-view-as-admin" onclick="viewAsAdmin()">View Portal</button>
+      <button class="btn-sm" style="background:#6366f1;color:#fff;border-color:#6366f1;" id="btn-view-as-hadmin>View Portal</button>
       <button class="btn-sm" class="btn-logout">Log out</button>
     </div>
   </nav>
@@ -271,8 +271,8 @@
       <div id="family-pin-error" style="color:#f87171;font-size:0.8rem;margin-top:0.5rem;min-height:1em;text-align:center;"></div>
     </div>
     <div style="display:flex;gap:0.75rem;">
-      <button class="btn-sm" style="flex:1;padding:0.55rem;" id="btn-cancel-family-pin" onclick="document.getElementById('family-pin-modal').classList.remove('open')">Cancel</button>
-      <button class="btn-add" style="flex:2;padding:0.55rem;" id="btn-submit-family-pin" onclick="submitFamilyPin()">Unlock</button>
+      <button class="btn-sm" style="flex:1;padding:0.55rem;" id="btn-cancel-family-pin">Cancel</button>
+      <button class="btn-add" style="flex:2;padding:0.55rem;" id="btn-submit-family-pin"a>Unlock</button>
     </div>
   </div>
 </div>
@@ -351,7 +351,7 @@
       on('btn-verify-2fa', verify2FA);
       on('btn-back-to-login', backToLogin);
       on('btn-complete-invite', completeInvite);
-      on('btn-view-as-admin', viewAsAdmin);
+      on('btn-view-as-admin', function(){ viewAsAdmin(); });
       onAll('btn-logout', doLogout);
       on('tab-btn-users', function(){ switchTab('users'); });
       on('tab-btn-businesses', function(){ switchTab('businesses'); });
@@ -366,7 +366,7 @@
       on('btn-save-personal-link', savePersonalLink);
       on('btn-save-personal-contact', savePersonalContact);
       on('btn-cancel-family-pin', function(){ document.getElementById('family-pin-modal').classList.remove('open'); });
-      on('btn-submit-family-pin', submitFamilyPin);
+      on('btn-submit-family-pin', function(){ submitFamilyPin(); }); on('btn-cancel-family-pin', function(){ document.getElementById('family-pin-modal').classList.remove('open'); });
       on('btn-close-perm-modal-x', closePermModal);
       on('btn-close-perm-modal-cancel', closePermModal);
       on('btn-save-perms', savePerms);
